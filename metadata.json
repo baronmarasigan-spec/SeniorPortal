@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Copy of Senior Citizen Management System (Phase 1)",
+  "description": "A comprehensive Senior Citizen Management System designed for ease of use, facilitating registration, ID issuance, benefits, and administrative oversight.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

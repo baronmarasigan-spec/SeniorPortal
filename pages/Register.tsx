@@ -180,7 +180,7 @@ export const Register: React.FC = () => {
   );
 
   return (
-    <div className="h-screen w-screen flex flex-col lg:flex-row bg-white overflow-hidden font-sans">
+    <div className="h-screen w-screen flex flex-col bg-white overflow-hidden font-sans">
       <InfoModal 
         isOpen={showTerms} 
         onClose={() => setShowTerms(false)} 
@@ -188,55 +188,16 @@ export const Register: React.FC = () => {
         content={termsContent} 
       />
 
-      {/* Left Panel - Hero / Branding (Desktop) */}
-      <div className="hidden lg:flex w-5/12 bg-gradient-to-br from-[#ef4444] to-[#f87171] p-12 text-white flex-col relative h-full justify-between z-10 shadow-2xl">
-         {/* Navigation */}
-         <div className="relative z-10">
-            <button 
-                onClick={() => navigate('/')}
-                className="flex items-center gap-2 text-white/90 hover:text-white transition-colors font-medium mb-8 group"
-            >
-                <div className="p-1 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors">
-                     <ArrowLeft size={18} />
-                </div>
-                <span>Back to home</span>
-            </button>
-
-            <h1 className="text-6xl font-extrabold tracking-tight mb-4 animate-fade-in-down">"MABUHAY ! "</h1>
-            <p className="text-white/90 text-lg leading-relaxed font-light max-w-md animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                Mag-rehistro ngayon at tangkilikin ang inyong Senior Citizen Benefits, para sa mas mabilis na access sa diskwento, healthcare support, at mga programang handog ng pamahalaan.
-            </p>
-         </div>
-
-         {/* Image - Floating and Middle */}
-         <div className="relative z-10 flex-1 flex items-center justify-center">
-             <div className="w-72 aspect-video bg-white rounded-2xl overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] border-4 border-white/20 transform -rotate-6 hover:rotate-0 hover:scale-110 transition-all duration-700 ease-in-out cursor-pointer animate-float">
-                <img src="https://picsum.photos/seed/seniors_gathering/600/400" alt="Seniors Gathering" className="w-full h-full object-cover" />
-             </div>
-             {/* Decorative small element */}
-             <div className="absolute top-1/2 right-12 w-20 h-20 bg-white/10 backdrop-blur-md rounded-full -translate-y-12 translate-x-12 blur-sm pointer-events-none animate-bounce-slow"></div>
-         </div>
-
-         {/* Footer Logos */}
-         <div className="relative z-10 flex items-center justify-center animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-             <img src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/Group-74.png" className="h-20 object-contain drop-shadow-lg" alt="Official Seals" />
-         </div>
-
-         {/* Decorative Backgrounds */}
-         <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-white opacity-5 rounded-full blur-3xl pointer-events-none"></div>
-         <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-black opacity-5 rounded-full blur-3xl pointer-events-none"></div>
-      </div>
-
-      {/* Mobile Header (Replaces left panel on small screens) */}
-      <div className="lg:hidden bg-[#ef4444] p-4 text-white flex justify-between items-center shrink-0 shadow-md z-20 animate-fade-in-down">
+      {/* Header */}
+      <div className="bg-white p-4 border-b border-slate-100 flex justify-between items-center shrink-0 shadow-sm z-20 animate-fade-in-down">
           <div className="flex items-center gap-2">
-              <button onClick={() => navigate('/')}><ArrowLeft size={20}/></button>
-              <h1 className="font-bold text-lg">Registration</h1>
+              <button onClick={() => navigate('/')} className="text-slate-500 hover:text-slate-800 transition-colors p-2 hover:bg-slate-50 rounded-full"><ArrowLeft size={20}/></button>
+              <h1 className="font-bold text-lg text-slate-800">Registration</h1>
           </div>
-          <img src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" className="w-8 h-8" />
+          <img src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" className="w-10 h-10 drop-shadow-md" alt="San Juan Seal" />
       </div>
 
-      {/* Right Panel - Form Wizard */}
+      {/* Main Content - Form Wizard */}
       <div className="flex-1 bg-white flex flex-col h-full overflow-hidden relative">
          {/* Step Progress Indicator */}
          <div className="px-6 lg:px-16 pt-8 pb-2 shrink-0 animate-fade-in-down">

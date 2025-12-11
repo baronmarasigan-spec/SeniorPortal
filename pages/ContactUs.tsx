@@ -16,10 +16,14 @@ export const ContactUs: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans relative overflow-hidden">
+      {/* Decorative Elements */}
+       <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none z-0"></div>
+       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none z-0" style={{ animationDelay: '2s' }}></div>
+
       {/* Header / Hero */}
       <div 
-        className="relative bg-slate-900 text-white py-20 px-4"
+        className="relative bg-slate-900 text-white py-20 px-4 z-10"
         style={{
              backgroundImage: "url('https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Group-81.png')",
              backgroundSize: 'cover',

@@ -41,6 +41,47 @@
               'xl': '1rem',
               '2xl': '1.5rem',
               '3xl': '2rem',
+            },
+            animation: {
+              'fade-in': 'fadeIn 2.5s ease-out',
+              'fade-in-up': 'fadeInUp 2.5s cubic-bezier(0.16, 1, 0.3, 1)',
+              'fade-in-down': 'fadeInDown 2.5s cubic-bezier(0.16, 1, 0.3, 1)',
+              'slide-in-right': 'slideInRight 2.5s cubic-bezier(0.16, 1, 0.3, 1)',
+              'scale-up': 'scaleUp 2s cubic-bezier(0.16, 1, 0.3, 1)',
+              'float': 'float 10s ease-in-out infinite',
+              'pulse-slow': 'pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'bounce-gentle': 'bounceGentle 4s infinite',
+              'bounce-slow': 'bounceGentle 8s infinite'
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              fadeInDown: {
+                '0%': { opacity: '0', transform: 'translateY(-20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              slideInRight: {
+                '0%': { opacity: '0', transform: 'translateX(20px)' },
+                '100%': { opacity: '1', transform: 'translateX(0)' },
+              },
+              scaleUp: {
+                '0%': { opacity: '0', transform: 'scale(0.95)' },
+                '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              bounceGentle: {
+                '0%, 100%': { transform: 'translateY(0)', animationTimingFunction: 'ease-in-out' },
+                '50%': { transform: 'translateY(-25px)', animationTimingFunction: 'ease-in-out' }
+              }
             }
           },
         },
@@ -52,6 +93,16 @@
       }
       html {
         scroll-behavior: smooth;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 20px;
       }
     </style>
   <script type="importmap">

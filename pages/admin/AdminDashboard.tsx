@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
@@ -44,17 +45,17 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <header>
+      <header className="animate-fade-in-down">
         <h1 className="text-3xl font-bold text-slate-800">Administrator Dashboard</h1>
         <p className="text-slate-500">Overview of system activities and metrics</p>
       </header>
 
       {/* AI Insight Card */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-3xl p-6 text-white shadow-xl shadow-primary-200">
+      <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-3xl p-6 text-white shadow-xl shadow-primary-200 animate-scale-up">
         <div className="flex items-start justify-between">
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2 mb-2">
-               <Sparkles className="text-yellow-300" />
+               <Sparkles className="text-yellow-300 animate-pulse-slow" />
                <h3 className="font-bold text-lg">AI Executive Insight</h3>
             </div>
             {aiSummary ? (
@@ -81,7 +82,11 @@ export const AdminDashboard: React.FC = () => {
           { label: 'Approved Today', value: approvedApps, icon: FileText, color: 'text-emerald-600', bg: 'bg-emerald-50' },
           { label: 'Open Complaints', value: openComplaints, icon: AlertCircle, color: 'text-primary-600', bg: 'bg-primary-50' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+          <div 
+             key={i} 
+             className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 animate-fade-in-up"
+             style={{ animationDelay: `${i * 100}ms` }}
+          >
             <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center`}>
               <stat.icon size={24} />
             </div>
@@ -94,7 +99,7 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
           <h3 className="font-bold text-slate-800 mb-6">Application Status Distribution</h3>
           <div className="h-64 w-full">

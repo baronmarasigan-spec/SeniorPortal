@@ -19,14 +19,6 @@ export const Login: React.FC = () => {
     const success = login(username, password);
 
     if (success) {
-      // Navigate based on the role of the user found in the mock database
-      // We need to fetch the user again or rely on the state update (which might be async, 
-      // but since we just called login, we can infer role from the 'success' logic if we had the user object,
-      // however, 'currentUser' won't be updated in this render cycle immediately. 
-      // NOTE: In a real app, login returns the user or token. 
-      // For this mock, we know the user was found.
-      
-      // Temporary check to redirect correctly immediately
       if (username.includes('admin')) {
         navigate('/admin/reports');
       } else {
@@ -45,10 +37,10 @@ export const Login: React.FC = () => {
       }}
     >
       {/* Background Overlay */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-fade-in"></div>
 
       {/* Top Logo */}
-      <div className="absolute top-8 left-0 right-0 flex justify-center z-20">
+      <div className="absolute top-8 left-0 right-0 flex justify-center z-20 animate-fade-in-down">
          <img 
             src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" 
             alt="Seal of San Juan" 
@@ -59,14 +51,14 @@ export const Login: React.FC = () => {
       {/* Back Button */}
       <button 
         onClick={() => navigate('/')}
-        className="absolute top-8 left-8 flex items-center gap-2 text-white hover:text-primary-200 transition-colors font-medium z-30 bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10"
+        className="absolute top-8 left-8 flex items-center gap-2 text-white hover:text-primary-200 transition-colors font-medium z-30 bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 animate-fade-in-right"
       >
         <ArrowLeft size={18} />
         <span className="hidden md:inline">Back to Home</span>
       </button>
 
       {/* Login Modal */}
-      <div className="bg-white w-full max-w-[500px] rounded-[2rem] shadow-2xl overflow-hidden relative z-20 mx-4">
+      <div className="bg-white w-full max-w-[500px] rounded-[2rem] shadow-2xl overflow-hidden relative z-20 mx-4 animate-scale-up">
         {/* Decorative elements to mimic the watermark/illustration in the design */}
         <div className="absolute right-0 bottom-0 opacity-5 pointer-events-none">
            <svg width="300" height="300" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -128,7 +120,7 @@ export const Login: React.FC = () => {
               </div>
 
               <div className="text-center text-sm text-slate-500 mt-8">
-                 Not registered yet? <button type="button" className="text-[#dc2626] border-b border-[#dc2626] ml-1 hover:text-red-700 hover:border-red-700 transition-colors font-medium">Register Here</button>
+                 Not registered yet? <button type="button" onClick={() => navigate('/register')} className="text-[#dc2626] border-b border-[#dc2626] ml-1 hover:text-red-700 hover:border-red-700 transition-colors font-medium">Register Here</button>
               </div>
            </form>
         </div>

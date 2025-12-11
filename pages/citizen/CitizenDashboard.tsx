@@ -54,7 +54,7 @@ export const CitizenDashboard: React.FC = () => {
   return (
     <div className="space-y-8 py-4">
       {/* Welcome Header */}
-      <div className="text-center md:text-left space-y-2 mb-10">
+      <div className="text-center md:text-left space-y-2 mb-10 animate-fade-in-down">
         <h1 className="text-4xl font-extrabold text-slate-800">
             Welcome, {currentUser?.name?.split(' ')[0]}!
         </h1>
@@ -67,7 +67,8 @@ export const CitizenDashboard: React.FC = () => {
             <button 
                 key={index}
                 onClick={() => navigate(item.path)}
-                className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 group text-left flex flex-col h-64 justify-between relative overflow-hidden"
+                className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 group text-left flex flex-col h-64 justify-between relative overflow-hidden animate-fade-in-up"
+                style={{ animationDelay: `${index * 100}ms` }}
             >
                 {/* Decorative Background Circle */}
                 <div className={`absolute -right-6 -top-6 w-32 h-32 rounded-full opacity-10 group-hover:opacity-20 transition-opacity ${item.color}`}></div>
@@ -91,7 +92,7 @@ export const CitizenDashboard: React.FC = () => {
       </div>
 
       {/* Quick Status Summary */}
-      <div className="mt-12 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 opacity-80 hover:opacity-100 transition-opacity">
+      <div className="mt-12 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 opacity-80 hover:opacity-100 transition-opacity animate-fade-in-up" style={{ animationDelay: '600ms' }}>
           <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
                   <User size={24} />

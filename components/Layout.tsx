@@ -55,7 +55,7 @@ const MenuGroup = ({ icon: Icon, label, children, isOpen, onClick }: any) => (
       )}
     </button>
     {isOpen && (
-      <div className="mt-1 space-y-1">
+      <div className="mt-1 space-y-1 animate-fade-in-down">
         {children}
       </div>
     )}
@@ -92,14 +92,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
       <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
         {/* Top Navigation Bar for Citizens */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm animate-fade-in-down">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     {/* Back Button - Shows on sub-pages */}
                     {location.pathname !== '/citizen/dashboard' && (
                         <button 
                             onClick={() => navigate('/citizen/dashboard')} 
-                            className="p-2 -ml-2 hover:bg-slate-100 rounded-full text-slate-600 transition-colors mr-2"
+                            className="p-2 -ml-2 hover:bg-slate-100 rounded-full text-slate-600 transition-colors mr-2 animate-scale-up"
                             title="Back to Menu"
                         >
                             <ArrowLeft size={24} />
@@ -108,7 +108,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     
                     {/* Brand */}
                     <div className="flex items-center gap-3 select-none cursor-pointer" onClick={() => navigate('/citizen/dashboard')}>
-                       <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md">SC</div>
+                       <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md transform hover:scale-105 transition-transform">SC</div>
                        <div>
                           <h1 className="font-bold text-slate-800 text-lg leading-tight hidden md:block">SeniorConnect</h1>
                        </div>
@@ -120,7 +120,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex items-center gap-3">
                         <div className="text-right hidden sm:block">
                             <p className="text-sm font-bold text-slate-800 leading-none">{currentUser?.name}</p>
-                            <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-1">Citizen Portal</p>
+                            <p className="text--[10px] text-slate-500 font-medium uppercase tracking-wider mt-1">Citizen Portal</p>
                         </div>
                         <img 
                           src={currentUser?.avatarUrl} 
@@ -152,7 +152,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
       {/* Mobile Header (Admin Only) */}
-      <div className="md:hidden bg-white p-4 flex justify-between items-center shadow-sm sticky top-0 z-20">
+      <div className="md:hidden bg-white p-4 flex justify-between items-center shadow-sm sticky top-0 z-20 animate-fade-in-down">
         <div className="flex items-center gap-2">
            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
            <span className="font-bold text-slate-800 text-lg">SeniorConnect Admin</span>
@@ -169,7 +169,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 h-full flex flex-col overflow-y-auto custom-scrollbar">
-          <div className="flex items-center gap-3 mb-8 px-2 hidden md:flex">
+          <div className="flex items-center gap-3 mb-8 px-2 hidden md:flex animate-fade-in">
             <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">SC</div>
             <div>
               <h1 className="font-bold text-slate-800 text-lg leading-tight">SeniorConnect</h1>
@@ -177,7 +177,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
             
             {/* 1. Registered Menu */}
             <MenuGroup 
@@ -279,7 +279,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           </div>
 
-          <div className="pt-6 border-t border-slate-100 mt-4">
+          <div className="pt-6 border-t border-slate-100 mt-4 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
             <div className="flex items-center gap-3 mb-4 px-2">
               <img src={currentUser?.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover border-2 border-slate-100" />
               <div className="overflow-hidden">
@@ -301,14 +301,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Overlay for mobile */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 z-0 md:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/20 z-0 md:hidden backdrop-blur-sm animate-fade-in"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto h-[calc(100vh-64px)] md:h-screen p-4 md:p-8">
-        <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
+        <div className="max-w-6xl mx-auto space-y-6 animate-fade-in-up">
           {children}
         </div>
       </main>

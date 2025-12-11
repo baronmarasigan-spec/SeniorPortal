@@ -16,7 +16,9 @@ import {
   User,
   Headset,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Globe,
+  Clock
 } from 'lucide-react';
 
 const Logo = () => (
@@ -27,8 +29,11 @@ const Logo = () => (
   />
 );
 
-const ServiceCard = ({ icon: Icon, title }: { icon: any, title: string }) => (
-  <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-50 transition-colors">
+const ServiceCard = ({ icon: Icon, title, delay }: { icon: any, title: string, delay: number }) => (
+  <div 
+    className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-50 transition-all duration-300 animate-fade-in-up hover:shadow-lg hover:-translate-y-1 cursor-default"
+    style={{ animationDelay: `${delay}ms` }}
+  >
     <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
       <Icon size={24} />
     </div>
@@ -37,20 +42,20 @@ const ServiceCard = ({ icon: Icon, title }: { icon: any, title: string }) => (
 );
 
 const ImageCollage = ({ image1, image2, image3 }: { image1: string, image2: string, image3: string }) => (
-  <div className="relative h-[400px] w-full max-w-md mx-auto">
-    <div className="absolute top-10 right-0 w-48 h-48 bg-white p-2 rounded-2xl shadow-xl z-20 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+  <div className="relative h-[400px] w-full max-w-md mx-auto animate-fade-in">
+    <div className="absolute top-10 right-0 w-48 h-48 bg-white p-2 rounded-2xl shadow-xl z-20 transform rotate-3 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '0s' }}>
       <img src={image1} alt="Community" className="w-full h-full object-cover rounded-xl" />
     </div>
-    <div className="absolute top-0 left-0 w-40 h-40 bg-white p-2 rounded-2xl shadow-xl z-10 transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+    <div className="absolute top-0 left-0 w-40 h-40 bg-white p-2 rounded-2xl shadow-xl z-10 transform -rotate-2 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '2s' }}>
       <img src={image2} alt="Service" className="w-full h-full object-cover rounded-xl" />
     </div>
-    <div className="absolute bottom-0 left-10 w-56 h-48 bg-white p-2 rounded-2xl shadow-xl z-30 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
+    <div className="absolute bottom-0 left-10 w-56 h-48 bg-white p-2 rounded-2xl shadow-xl z-30 transform -rotate-1 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '4s' }}>
       <img src={image3} alt="Help" className="w-full h-full object-cover rounded-xl" />
     </div>
     
     {/* Decorative Elements */}
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary-600 rounded-full opacity-10 blur-3xl -z-10"></div>
-    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-secondary-400 rounded-full opacity-20 blur-xl -z-10"></div>
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary-500 rounded-full opacity-5 blur-3xl -z-10 animate-pulse-slow"></div>
+    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-500 rounded-full opacity-5 blur-xl -z-10"></div>
   </div>
 );
 
@@ -59,7 +64,7 @@ const InfoModal = ({ isOpen, onClose, title, content }: { isOpen: boolean; onClo
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
-      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl relative z-20 overflow-hidden flex flex-col max-h-[80vh] animate-fade-in-up">
+      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl relative z-20 overflow-hidden flex flex-col max-h-[80vh] animate-scale-up">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
            <div className="flex items-center gap-3">
              <div className="p-2 bg-primary-50 text-primary-600 rounded-lg">
@@ -110,12 +115,12 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fade-in" 
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className="bg-white w-full max-w-[450px] rounded-[2.5rem] shadow-2xl overflow-hidden relative z-20 animate-fade-in-up ring-4 ring-white/30">
+      <div className="bg-white w-full max-w-[450px] rounded-[2.5rem] shadow-2xl overflow-hidden relative z-20 animate-scale-up ring-4 ring-white/30">
         
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
@@ -216,6 +221,13 @@ export const LandingPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const termsContent = (
     <div className="space-y-6 text-slate-600 leading-relaxed font-light">
         <div>
@@ -259,10 +271,10 @@ export const LandingPage: React.FC = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-between items-center h-full">
-            <div className="flex gap-4 items-center text-sm font-medium text-slate-800 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/50">
-              <a href="#home" className="hover:text-primary-600 transition-colors text-primary-600 font-bold">Home</a>
+            <div className="flex gap-4 items-center text-sm font-medium text-slate-800 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/50 animate-fade-in-down" style={{ animationDelay: '200ms' }}>
+              <button onClick={() => scrollToSection('home')} className="hover:text-primary-600 transition-colors text-primary-600 font-bold">Home</button>
               <button onClick={() => navigate('/register')} className="hover:text-primary-600 transition-colors">Register</button>
-              <button onClick={() => navigate('/contact')} className="hover:text-primary-600 transition-colors">Contact Us</button>
+              <button onClick={() => scrollToSection('contact')} className="hover:text-primary-600 transition-colors cursor-pointer">Contact Us</button>
             </div>
 
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-2">
@@ -271,7 +283,7 @@ export const LandingPage: React.FC = () => {
 
             <button 
               onClick={() => setShowLogin(true)}
-              className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full text-primary-600 font-bold hover:bg-white hover:text-primary-700 hover:shadow-lg transition-all border border-white/50"
+              className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full text-primary-600 font-bold hover:bg-white hover:text-primary-700 hover:shadow-lg transition-all border border-white/50 animate-fade-in-down" style={{ animationDelay: '300ms' }}
             >
               Login <ArrowRight size={18} />
             </button>
@@ -282,18 +294,18 @@ export const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <section 
         id="home" 
-        className="relative min-h-screen flex items-center justify-center pt-44 pb-40 px-4 bg-cover bg-center bg-no-repeat"
+        className="relative min-h-screen flex items-center justify-center pt-44 pb-40 px-4 bg-cover bg-center bg-no-repeat scroll-mt-24"
         style={{
           backgroundImage: "url('https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Group-81.png')"
         }}
       >
         <div className="max-w-7xl mx-auto text-center space-y-8 relative z-10 w-full mt-10">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-primary-600 tracking-tight drop-shadow-2xl">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-primary-600 tracking-tight drop-shadow-2xl animate-fade-in-up" style={{ animationDelay: '200ms' }}>
             Senior Citizen Management System
           </h1>
           
           <div className="max-w-4xl mx-auto">
-             <p className="text-slate-900 text-base font-medium leading-relaxed drop-shadow-md max-w-4xl mx-auto">
+             <p className="text-slate-900 text-base font-medium leading-relaxed drop-shadow-md max-w-4xl mx-auto animate-fade-in-up" style={{ animationDelay: '400ms' }}>
                 SeniorConnect is a centralized LGU platform that streamlines welfare assistance for senior citizens, 
                 improves application tracking, and ensures faster, more transparent service delivery for the community of San Juan.
              </p>
@@ -314,11 +326,12 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Senior Services */}
-      <section id="benefits" className="py-24 px-4 overflow-hidden">
+      <section id="benefits" className="py-24 px-4 overflow-hidden scroll-mt-24">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16">
           <div className="flex-1 relative">
-             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
-             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-[300px] h-[600px] bg-blue-500 rounded-l-[10rem] opacity-90 -z-10"></div>
+             {/* Updated Background Elements to match Contact Us style */}
+             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none"></div>
+             <div className="absolute left-10 bottom-0 w-[300px] h-[300px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none" style={{ animationDelay: '1s' }}></div>
              
              <div className="pl-12">
                 <ImageCollage 
@@ -330,23 +343,24 @@ export const LandingPage: React.FC = () => {
           </div>
           
           <div className="flex-1 space-y-8">
-            <h2 className="text-4xl font-bold text-primary-500">Senior Citizen Services</h2>
-            <p className="text-slate-600 leading-relaxed">
+            <h2 className="text-4xl font-bold text-primary-500 animate-slide-in-right">Senior Citizen Services</h2>
+            <p className="text-slate-600 leading-relaxed animate-slide-in-right" style={{ animationDelay: '100ms' }}>
               Our system ensures that senior citizens can access welfare services quickly, safely, 
               and transparently. From registration to ID issuance and cash grants, seniors can 
               manage their benefits online.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ServiceCard icon={Heart} title="Healthcare Privileges Access" />
-              <ServiceCard icon={CreditCard} title="Senior Citizen ID Issuance" />
-              <ServiceCard icon={Wallet} title="Cash Grant Eligibility" />
-              <ServiceCard icon={Tag} title="Discounts in Partner Merchants" />
+              <ServiceCard icon={Heart} title="Healthcare Privileges Access" delay={200} />
+              <ServiceCard icon={CreditCard} title="Senior Citizen ID Issuance" delay={300} />
+              <ServiceCard icon={Wallet} title="Cash Grant Eligibility" delay={400} />
+              <ServiceCard icon={Tag} title="Discounts in Partner Merchants" delay={500} />
             </div>
 
             <button 
               onClick={() => navigate('/register')}
-              className="bg-secondary-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg shadow-secondary-500/30 hover:bg-secondary-700 transition-all hover:scale-105"
+              className="bg-secondary-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg shadow-secondary-500/30 hover:bg-secondary-700 transition-all hover:scale-105 animate-scale-up"
+              style={{ animationDelay: '600ms' }}
             >
               Apply for Senior
             </button>
@@ -354,37 +368,147 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Contact Us Section (Inserted before footer) */}
+      <section id="contact" className="py-20 px-4 bg-white relative overflow-hidden scroll-mt-24">
+         {/* Decorative Elements */}
+         <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none"></div>
+         <div className="absolute -left-20 bottom-0 w-[300px] h-[300px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none" style={{ animationDelay: '1s' }}></div>
+    
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+             <div className="text-center mb-16">
+                 <h2 className="text-4xl font-bold text-primary-500 mb-4">Contact Us</h2>
+                 <p className="text-slate-500 max-w-2xl mx-auto">We are here to assist you. Reach out to our dedicated Senior Citizen Affairs team for inquiries, support, or feedback.</p>
+             </div>
+
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Contact Cards */}
+                <div className="lg:col-span-1 space-y-6">
+                    <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
+                        <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <User className="text-primary-500" /> Key Officials
+                        </h2>
+                        
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
+                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
+                                    <User size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">OSCA Head</p>
+                                    <h3 className="font-bold text-slate-800 text-lg">Ms. Elena Cruz</h3>
+                                    <p className="text-sm text-slate-500 mt-1">Office of Senior Citizens Affairs</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
+                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
+                                    <Headset size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Technical Support</p>
+                                    <h3 className="font-bold text-slate-800 text-lg">IT System Support</h3>
+                                    <p className="text-sm text-slate-500 mt-1">System & Registration Assistance</p>
+                                    <p className="text-sm font-mono text-primary-600 font-medium mt-1">(02) 8888-9900</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 space-y-6 transform hover:-translate-y-1 transition-transform duration-300">
+                        <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <Phone className="text-primary-500" /> Direct Lines
+                        </h2>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
+                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
+                                    <Mail size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400 font-medium">Email Address</p>
+                                    <p className="text-slate-700 font-medium">publicinfo@sanjuancity.gov.ph</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
+                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
+                                    <Phone size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400 font-medium">Hotline</p>
+                                    <p className="text-slate-700 font-medium">(02) 7729 0005</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
+                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
+                                    <Clock size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400 font-medium">Office Hours</p>
+                                    <p className="text-slate-700 font-medium">Mon - Fri, 8:00 AM - 5:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Map Section */}
+                <div className="lg:col-span-2 space-y-4">
+                    <div className="bg-white p-3 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 h-full min-h-[500px] flex flex-col transform hover:-translate-y-1 transition-transform duration-300">
+                        <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                    <MapPin className="text-primary-500" /> Visit Us
+                                </h2>
+                                <p className="text-slate-500 text-sm mt-1">City Government of San Juan, Pinaglabanan, San Juan City</p>
+                            </div>
+                            <a 
+                                href="https://maps.google.com/maps?ll=14.604085,121.033361&z=16&t=m&hl=en&gl=PH&mapclient=embed&cid=7082357770932580798" 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="flex items-center gap-2 text-sm font-bold text-primary-600 bg-primary-50 px-4 py-2 rounded-xl hover:bg-primary-100 transition-colors"
+                            >
+                                <Globe size={16} /> Open in Google Maps
+                            </a>
+                        </div>
+                        
+                        <div className="flex-1 w-full rounded-2xl overflow-hidden bg-slate-100 relative">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.916847847424!2d121.03138831484032!3d14.60384698979986!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b7d780f2d843%3A0x62913076735a770!2sCity%20Government%20of%20San%20Juan!5e0!3m2!1sen!2sph!4v1629876543210!5m2!1sen!2sph" 
+                                width="100%" 
+                                height="100%" 
+                                style={{ border: 0, minHeight: '400px' }} 
+                                allowFullScreen={true} 
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                title="San Juan City Hall Map"
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+             </div>
+         </div>
+      </section>
+
       {/* Footer */}
-      <footer id="contact" className="bg-slate-50 border-t border-slate-200 pt-16 pb-8 relative overflow-hidden">
+      <footer className="bg-slate-50 border-t border-slate-200 pt-16 pb-8 relative overflow-hidden">
          <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
            <div className="flex flex-col items-center md:items-start text-center md:text-left">
-             <Logo />
+             <img 
+               src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/Group-74.png" 
+               alt="Official Seals" 
+               className="h-12 w-auto object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300"
+             />
              <h3 className="font-bold text-slate-800 mt-4 text-lg">Dakilang Lungsod ng San Juan</h3>
              <p className="text-slate-500 text-sm">Kalakhang Maynila</p>
            </div>
            
            <div className="flex flex-col gap-4 text-slate-600 text-sm items-center md:items-start">
-              <h4 className="font-bold text-slate-800 mb-1">Contact Information</h4>
-              <div className="flex items-center gap-3">
-                <User className="text-primary-500" size={18} />
-                <span>Ms. Elena Cruz - OSCA Head</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Headset className="text-primary-500" size={18} />
-                <span>IT System Support: (02) 8888-9900</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="text-primary-500" size={18} />
-                <span>Pinaglabanan, San Juan City, Metro Manila</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="text-primary-500" size={18} />
-                <span>publicinfo@sanjuancity.gov.ph</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="text-primary-500" size={18} />
-                <span>(02) 7729 0005</span>
-              </div>
+               {/* Simplified Footer Links since comprehensive contact info is above */}
+               <h4 className="font-bold text-slate-800 mb-1">Quick Links</h4>
+               <button onClick={() => scrollToSection('home')} className="hover:text-primary-600 transition-colors">Home</button>
+               <button onClick={() => scrollToSection('benefits')} className="hover:text-primary-600 transition-colors">Services</button>
+               <button onClick={() => scrollToSection('contact')} className="hover:text-primary-600 transition-colors">Contact Support</button>
+               <button onClick={() => navigate('/register')} className="hover:text-primary-600 transition-colors text-left">Register</button>
            </div>
 
            <div className="flex flex-col items-center justify-center md:items-end gap-2">

@@ -39,15 +39,6 @@ export const Login: React.FC = () => {
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-fade-in"></div>
 
-      {/* Top Logo */}
-      <div className="absolute top-8 left-0 right-0 flex justify-center z-20 animate-fade-in-down">
-         <img 
-            src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" 
-            alt="Seal of San Juan" 
-            className="w-24 h-24 drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-         />
-      </div>
-
       {/* Back Button */}
       <button 
         onClick={() => navigate('/')}

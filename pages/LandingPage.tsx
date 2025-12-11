@@ -144,15 +144,6 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
         </button>
 
         <div className="relative z-10 px-10 py-12 flex flex-col items-center">
-           {/* Logo */}
-           <div className="mb-6 drop-shadow-xl hover:scale-105 transition-transform duration-300">
-               <img 
-                 src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" 
-                 alt="San Juan Seal" 
-                 className="w-24 h-24"
-               />
-           </div>
-
            <h2 className="text-3xl font-extrabold text-[#dc2626] mb-8 tracking-tight">Log in</h2>
            
            <form onSubmit={handleSubmit} className="w-full space-y-6">

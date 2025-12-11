@@ -481,7 +481,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-50 border-t border-slate-200 pt-16 relative overflow-hidden">
+      <footer className="bg-white border-t border-slate-200 pt-16 relative overflow-hidden">
          <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10 pb-12">
            <div className="flex flex-col items-center md:items-start text-center md:text-left">
              <img 
@@ -517,7 +517,7 @@ export const LandingPage: React.FC = () => {
          {/* Subfooter Image */}
          <div className="w-full">
             <img 
-                src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/Group-53.png" 
+                src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/subfooter.png" 
                 alt="" 
                 className="w-full h-auto object-cover block"
             />

@@ -481,8 +481,8 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-50 border-t border-slate-200 pt-16 pb-8 relative overflow-hidden">
-         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+      <footer className="bg-slate-50 border-t border-slate-200 pt-16 relative overflow-hidden">
+         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10 pb-12">
            <div className="flex flex-col items-center md:items-start text-center md:text-left">
              <img 
                src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/Group-74.png" 
@@ -514,9 +514,14 @@ export const LandingPage: React.FC = () => {
            </div>
          </div>
 
-         {/* Decorative city line pattern bottom */}
-         <div className="absolute bottom-0 left-0 right-0 h-16 bg-[url('https://www.transparenttextures.com/patterns/city-lights.png')] opacity-10 bg-repeat-x"></div>
-         <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-500"></div>
+         {/* Subfooter Image */}
+         <div className="w-full">
+            <img 
+                src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/Group-53.png" 
+                alt="" 
+                className="w-full h-auto object-cover block"
+            />
+         </div>
       </footer>
     </div>
   );

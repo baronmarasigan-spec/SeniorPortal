@@ -5,7 +5,8 @@ import { useApp } from '../context/AppContext';
 import { 
   User, Calendar, MapPin, Upload, FileCheck, Search, 
   ArrowLeft, AlertCircle, CheckCircle2, ArrowRight, Star,
-  Phone, Heart, X, FileText, Key, Mail, ShieldCheck
+  Phone, Heart, X, FileText, Key, Mail, ShieldCheck, Info,
+  LogIn, XCircle
 } from 'lucide-react';
 import { RegistryRecord } from '../types';
 
@@ -37,7 +38,7 @@ const InfoModal = ({ isOpen, onClose, title, content }: { isOpen: boolean; onClo
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { verifyIdentity } = useApp();
+  const { verifyIdentity, registryRecords } = useApp();
   
   // Steps: 1=Verify, 2=Personal, 3=Contact/Account, 4=Docs/Terms
   const [currentStep, setCurrentStep] = useState(1);
@@ -127,7 +128,7 @@ export const Register: React.FC = () => {
                 emergencyContactNumber: '',
             });
         }
-    }, 1000);
+    }, 800);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -157,6 +158,18 @@ export const Register: React.FC = () => {
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(c => c - 1);
   };
+
+  // Logic to allow proceeding:
+  // 1. Found + Unregistered + Eligible
+  // 2. Not Found (Manual Registration)
+  const canProceedStep1 = (verificationStatus === 'found' && foundRecord && !foundRecord.isRegistered && isEligible) || 
+                          (verificationStatus === 'not-found');
+
+  // Logic to show/hide bottom navigation
+  // Show only if:
+  // 1. Not in step 1 (always show for steps 2,3,4)
+  // 2. OR In step 1 AND can proceed
+  const showBottomNav = currentStep > 1 || canProceedStep1;
 
   const termsContent = (
     <div className="space-y-6 text-slate-600 leading-relaxed font-light">
@@ -189,12 +202,12 @@ export const Register: React.FC = () => {
       />
 
       {/* Header */}
-      <div className="bg-white p-4 border-b border-slate-100 flex justify-between items-center shrink-0 shadow-sm z-20 animate-fade-in-down">
+      <div className="bg-[#ef4444] p-4 text-white flex justify-between items-center shrink-0 shadow-md z-20 animate-fade-in-down">
           <div className="flex items-center gap-2">
-              <button onClick={() => navigate('/')} className="text-slate-500 hover:text-slate-800 transition-colors p-2 hover:bg-slate-50 rounded-full"><ArrowLeft size={20}/></button>
-              <h1 className="font-bold text-lg text-slate-800">Registration</h1>
+              <button onClick={() => navigate('/')}><ArrowLeft size={20}/></button>
+              <h1 className="font-bold text-lg">Registration</h1>
           </div>
-          <img src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" className="w-10 h-10 drop-shadow-md" alt="San Juan Seal" />
+          <img src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" className="w-8 h-8" alt="San Juan Seal" />
       </div>
 
       {/* Main Content - Form Wizard */}
@@ -252,60 +265,183 @@ export const Register: React.FC = () => {
                             </button>
                          </form>
 
+                         {/* 1. Found Record Display */}
                          {verificationStatus === 'found' && foundRecord && (
-                            <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-6 animate-scale-up">
+                            <div className={`border rounded-3xl p-6 animate-scale-up ${
+                                foundRecord.isRegistered 
+                                ? 'bg-emerald-50 border-emerald-200' // Green (Registered)
+                                : isEligible 
+                                  ? 'bg-amber-50 border-amber-200' // Yellow (Eligible)
+                                  : 'bg-red-50 border-red-200' // Red (Not Eligible)
+                            }`}>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
-                                        <CheckCircle2 size={24} />
+                                    <div className={`p-2 rounded-full ${
+                                        foundRecord.isRegistered 
+                                        ? 'bg-emerald-100 text-emerald-600'
+                                        : isEligible 
+                                          ? 'bg-amber-100 text-amber-600'
+                                          : 'bg-red-100 text-red-600'
+                                    }`}>
+                                        {foundRecord.isRegistered ? <CheckCircle2 size={24} /> : isEligible ? <Star size={24} /> : <XCircle size={24} />}
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-emerald-900 text-lg">Record Found</h3>
-                                        <p className="text-emerald-700 text-sm">We found a match in the database.</p>
+                                        <h3 className={`font-bold text-lg ${
+                                            foundRecord.isRegistered ? 'text-emerald-900' : isEligible ? 'text-amber-900' : 'text-red-900'
+                                        }`}>
+                                            {foundRecord.isRegistered ? 'Account Exists' : isEligible ? 'Record Found' : 'Not Eligible'}
+                                        </h3>
+                                        <p className={`text-sm ${
+                                            foundRecord.isRegistered ? 'text-emerald-700' : isEligible ? 'text-amber-700' : 'text-red-700'
+                                        }`}>
+                                            {foundRecord.isRegistered 
+                                                ? 'This ID is already associated with an account.' 
+                                                : isEligible 
+                                                  ? 'Your record was found and you are eligible.' 
+                                                  : 'You do not meet the age requirement.'}
+                                        </p>
                                     </div>
                                 </div>
+
                                 <div className="bg-white/60 rounded-2xl p-4 mb-4 space-y-2">
                                     <p className="font-bold text-slate-800 text-lg">{foundRecord.firstName} {foundRecord.lastName}</p>
                                     <p className="text-slate-500 text-sm flex items-center gap-2"><MapPin size={14}/> {foundRecord.address}</p>
                                     <div className="flex items-center gap-2 mt-2">
-                                        {isEligible ? (
-                                            <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center gap-1">
-                                                <Star size={12} /> Eligible (Age {calculatedAge})
-                                            </span>
-                                        ) : (
-                                            <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full flex items-center gap-1">
-                                                <AlertCircle size={12} /> Not Eligible (Age {calculatedAge})
-                                            </span>
-                                        )}
+                                        <span className={`text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 ${
+                                            isEligible ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                                        }`}>
+                                            {isEligible ? <Star size={12} /> : <AlertCircle size={12} />} 
+                                            Age: {calculatedAge} years old
+                                        </span>
                                     </div>
                                 </div>
+                                
                                 {foundRecord.isRegistered ? (
-                                    <div className="text-center text-emerald-800 font-medium bg-emerald-100/50 p-3 rounded-xl">
-                                        This user is already registered. Please login instead.
-                                    </div>
+                                    <button 
+                                        onClick={() => navigate('/', { state: { openLogin: true } })}
+                                        className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20"
+                                    >
+                                        <LogIn size={18} /> Login to your account
+                                    </button>
                                 ) : isEligible ? (
-                                    <p className="text-sm text-emerald-700 text-center">
-                                        Click <strong>Next</strong> to proceed with registration using this data.
+                                    <p className="text-sm text-amber-800 text-center font-medium bg-amber-100/50 p-2 rounded-xl">
+                                        Please proceed by clicking <strong>Next</strong> below.
                                     </p>
                                 ) : (
-                                    <p className="text-sm text-amber-700 text-center">
-                                        You must be at least 60 years old to register.
-                                    </p>
+                                    <div className="text-center text-red-800 font-medium bg-red-100/50 p-3 rounded-xl flex items-center justify-center gap-2">
+                                        <XCircle size={16} /> Minimum age requirement is 60.
+                                    </div>
                                 )}
                             </div>
                          )}
 
+                         {/* 2. Not Found Display (RED) */}
                          {verificationStatus === 'not-found' && (
-                             <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 text-center animate-scale-up">
-                                 <div className="w-12 h-12 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                                     <Search size={24} />
+                             <div className="bg-red-50 border border-red-200 rounded-3xl p-6 text-center animate-scale-up">
+                                 <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                     <XCircle size={24} />
                                  </div>
-                                 <h3 className="font-bold text-slate-800">No Record Found</h3>
-                                 <p className="text-slate-500 text-sm mb-4">We couldn't find your ID in the system.</p>
-                                 <p className="text-sm text-slate-600 bg-white p-3 rounded-xl border border-slate-200">
-                                     You can proceed with <strong>Manual Registration</strong> by clicking Next.
+                                 <h3 className="font-bold text-red-900">Record Not Found</h3>
+                                 <p className="text-red-700 text-sm mb-4">We couldn't find ID <strong>{searchId}</strong> in the masterlist.</p>
+                                 <p className="text-sm text-red-600 bg-white/50 p-3 rounded-xl border border-red-100">
+                                     You can proceed with <strong>Manual Registration</strong> by clicking the button below.
                                  </p>
                              </div>
                          )}
+
+                         {/* Test Data Display for Demo */}
+                         <div className="mt-8 pt-6 border-t border-slate-100">
+                             <div className="flex items-center gap-2 mb-4">
+                                 <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500">
+                                    <Info size={16} />
+                                 </div>
+                                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Demo Data: Available Records</span>
+                             </div>
+                             <div className="grid gap-3 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                                 {registryRecords.map((record) => {
+                                     const recAge = calculateAge(record.birthDate);
+                                     const recEligible = recAge >= 60;
+                                     // Green: Registered
+                                     // Yellow: !Registered & Eligible
+                                     // Red: !Registered & !Eligible
+                                     let borderClass = '';
+                                     let bgClass = '';
+                                     let textClass = '';
+                                     let badgeClass = '';
+
+                                     if (record.isRegistered) {
+                                         borderClass = 'border-emerald-200 hover:border-emerald-300';
+                                         bgClass = 'bg-emerald-50';
+                                         textClass = 'text-emerald-900';
+                                         badgeClass = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                                     } else if (recEligible) {
+                                         borderClass = 'border-amber-200 hover:border-amber-300';
+                                         bgClass = 'bg-amber-50';
+                                         textClass = 'text-amber-900';
+                                         badgeClass = 'bg-amber-100 text-amber-700 border-amber-200';
+                                     } else {
+                                         borderClass = 'border-red-200 hover:border-red-300';
+                                         bgClass = 'bg-red-50';
+                                         textClass = 'text-red-900';
+                                         badgeClass = 'bg-red-100 text-red-700 border-red-200';
+                                     }
+
+                                     return (
+                                        <button 
+                                            key={record.id}
+                                            onClick={() => {
+                                                setSearchId(record.id);
+                                                setVerificationStatus('idle');
+                                            }}
+                                            className={`flex items-center justify-between p-3 rounded-xl border transition-all group text-left w-full ${borderClass} ${bgClass}`}
+                                        >
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className={`font-mono text-xs font-bold px-1.5 py-0.5 rounded border ${badgeClass}`}>
+                                                        {record.id}
+                                                    </span>
+                                                    {record.isRegistered ? (
+                                                         <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1"><CheckCircle2 size={10} /> Reg</span>
+                                                    ) : recEligible ? (
+                                                         <span className="text-[10px] font-bold text-amber-600 flex items-center gap-1"><Star size={10} /> Eligible</span>
+                                                    ) : (
+                                                         <span className="text-[10px] font-bold text-red-600 flex items-center gap-1"><XCircle size={10} /> Ineligible</span>
+                                                    )}
+                                                </div>
+                                                <div className={`text-xs font-medium ${textClass}`}>
+                                                    {record.firstName} {record.lastName} • {recAge} y/o
+                                                </div>
+                                            </div>
+                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 text-xs font-bold">
+                                                Use
+                                            </div>
+                                        </button>
+                                     );
+                                 })}
+                                 {/* Manual Not Found Button */}
+                                 <button 
+                                    onClick={() => {
+                                        setSearchId('UNKNOWN-ID-999');
+                                        setVerificationStatus('idle');
+                                    }}
+                                    className="flex items-center justify-between p-3 rounded-xl border border-red-200 bg-red-50 hover:border-red-300 transition-all group text-left w-full"
+                                 >
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="font-mono text-xs font-bold px-1.5 py-0.5 rounded border bg-red-100 text-red-700 border-red-200">
+                                                UNKNOWN-ID-999
+                                            </span>
+                                            <span className="text-[10px] font-bold text-red-600 flex items-center gap-1"><XCircle size={10} /> Not Found</span>
+                                        </div>
+                                        <div className="text-xs font-medium text-red-900">
+                                            Test "Not Found" Scenario
+                                        </div>
+                                    </div>
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 text-xs font-bold">
+                                        Test
+                                    </div>
+                                 </button>
+                             </div>
+                         </div>
                      </div>
                  )}
 
@@ -582,37 +718,40 @@ export const Register: React.FC = () => {
          </div>
 
          {/* Bottom Navigation */}
-         <div className="bg-white border-t border-slate-100 p-4 lg:px-16 flex items-center justify-between shrink-0 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
-             <div className="hidden sm:flex gap-6 text-sm font-bold text-slate-300 select-none">
-                 <span className={`transition-colors ${currentStep === 1 ? 'text-[#ef4444]' : 'text-slate-800'}`}>1</span>
-                 <span className={`transition-colors ${currentStep === 2 ? 'text-[#ef4444]' : currentStep > 2 ? 'text-slate-800' : ''}`}>2</span>
-                 <span className={`transition-colors ${currentStep === 3 ? 'text-[#ef4444]' : currentStep > 3 ? 'text-slate-800' : ''}`}>3</span>
-                 <span className={`transition-colors ${currentStep === 4 ? 'text-[#ef4444]' : ''}`}>4</span>
-             </div>
+         {showBottomNav && (
+             <div className="bg-white border-t border-slate-100 p-4 lg:px-16 flex items-center justify-between shrink-0 animate-fade-in-up" style={{ animationDelay: '50ms' }}>
+                 <div className="hidden sm:flex gap-6 text-sm font-bold text-slate-300 select-none">
+                     <span className={`transition-colors ${currentStep === 1 ? 'text-[#ef4444]' : 'text-slate-800'}`}>1</span>
+                     <span className={`transition-colors ${currentStep === 2 ? 'text-[#ef4444]' : currentStep > 2 ? 'text-slate-800' : ''}`}>2</span>
+                     <span className={`transition-colors ${currentStep === 3 ? 'text-[#ef4444]' : currentStep > 3 ? 'text-slate-800' : ''}`}>3</span>
+                     <span className={`transition-colors ${currentStep === 4 ? 'text-[#ef4444]' : ''}`}>4</span>
+                 </div>
 
-             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                 <button 
-                    onClick={prevStep} 
-                    disabled={currentStep === 1}
-                    className={`text-slate-500 font-bold hover:text-slate-800 px-4 py-2 rounded-xl transition-colors ${currentStep === 1 ? 'opacity-0 pointer-events-none' : ''}`}
-                 >
-                     Back
-                 </button>
-                 
-                 <button
-                     onClick={nextStep}
-                     disabled={(currentStep === 1 && !foundRecord && verificationStatus !== 'not-found') || (currentStep === 1 && foundRecord && foundRecord.isRegistered)}
-                     className={`font-bold flex items-center gap-2 px-6 py-3 rounded-xl transition-all shadow-lg ${
-                        currentStep === 4 
-                        ? (agreed && !submitted ? 'bg-[#ef4444] text-white hover:bg-red-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none')
-                        : 'text-[#ef4444] hover:bg-red-50'
-                     }`}
-                 >
-                     {currentStep === 4 ? (submitted ? 'Processing...' : 'Submit Application') : 'Next'} 
-                     {currentStep < 4 && <ArrowLeft className="rotate-180" size={20} />}
-                 </button>
+                 <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                     <button 
+                        onClick={prevStep} 
+                        disabled={currentStep === 1}
+                        className={`text-slate-500 font-bold hover:text-slate-800 px-4 py-2 rounded-xl transition-colors ${currentStep === 1 ? 'opacity-0 pointer-events-none' : ''}`}
+                     >
+                         Back
+                     </button>
+                     
+                     <button
+                         onClick={nextStep}
+                         // Disabled if Step 1 (controlled by showBottomNav visibility really, but for safety)
+                         disabled={(currentStep === 1 && !canProceedStep1)}
+                         className={`font-bold flex items-center gap-2 px-6 py-3 rounded-xl transition-all shadow-lg ${
+                            currentStep === 4 
+                            ? (agreed && !submitted ? 'bg-[#ef4444] text-white hover:bg-red-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none')
+                            : 'text-[#ef4444] hover:bg-red-50'
+                         }`}
+                     >
+                         {currentStep === 4 ? (submitted ? 'Processing...' : 'Submit Application') : (currentStep === 1 && verificationStatus === 'not-found' ? 'Proceed Manually' : 'Next')} 
+                         {currentStep < 4 && <ArrowLeft className="rotate-180" size={20} />}
+                     </button>
+                 </div>
              </div>
-         </div>
+         )}
       </div>
     </div>
   );

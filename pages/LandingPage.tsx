@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Role } from '../types';
 import { 
@@ -200,6 +200,7 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -211,6 +212,14 @@ export const LandingPage: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (location.state && (location.state as any).openLogin) {
+      setShowLogin(true);
+      // Clear state to prevent reopening on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);

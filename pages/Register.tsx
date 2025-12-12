@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { 
@@ -53,6 +53,12 @@ const LOCATION_DATA: Record<string, Record<string, string[]>> = {
 
 const METRO_MANILA_CITIES = Object.keys(LOCATION_DATA).sort();
 
+const SLIDESHOW_IMAGES = [
+  "https://picsum.photos/seed/seniors_ph/800/600",
+  "https://picsum.photos/seed/seniors_gathering/800/600", 
+  "https://picsum.photos/seed/seniors_smile/800/600"
+];
+
 const InfoModal = ({ isOpen, onClose, title, content }: { isOpen: boolean; onClose: () => void; title: string; content: React.ReactNode }) => {
   if (!isOpen) return null;
   return (
@@ -90,6 +96,16 @@ export const Register: React.FC = () => {
   const [foundRecord, setFoundRecord] = useState<RegistryRecord | null>(null);
   const [calculatedAge, setCalculatedAge] = useState<number>(0);
   const [showTerms, setShowTerms] = useState(false);
+
+  // Slideshow State
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % SLIDESHOW_IMAGES.length);
+    }, 3000); // 3 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -297,13 +313,17 @@ export const Register: React.FC = () => {
                     </p>
                 </div>
 
+                {/* Slideshow Image */}
                 <div className="relative w-full aspect-[4/3] max-w-[280px] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/30 transform hover:scale-105 transition-all duration-700 mx-auto">
-                    <img 
-                        src="https://picsum.photos/seed/seniors_ph/800/600" 
-                        alt="Filipino Seniors Community" 
-                        className="object-cover w-full h-full" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                    {SLIDESHOW_IMAGES.map((img, index) => (
+                        <img 
+                            key={index}
+                            src={img} 
+                            alt={`Senior Community Slide ${index + 1}`} 
+                            className={`object-cover w-full h-full absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`} 
+                        />
+                    ))}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent z-10 pointer-events-none"></div>
                 </div>
             </div>
 

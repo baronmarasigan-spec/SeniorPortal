@@ -10,6 +10,49 @@ import {
 } from 'lucide-react';
 import { RegistryRecord } from '../types';
 
+// Structured Data for Metro Manila
+const LOCATION_DATA: Record<string, Record<string, string[]>> = {
+  "San Juan": {
+    "District 1": ["Balong-Bato", "Batis", "Corazon de Jesus", "Ermitaño", "Pasadeña", "Pedro Cruz", "Progreso", "Rivera", "Salapan", "San Perfecto"],
+    "District 2": ["Addition Hills", "Greenhills", "Isabelita", "Kabayanan", "Little Baguio", "Maytunas", "Onse", "Saint Joseph", "Sta. Lucia", "Tibagan", "West Crame"]
+  },
+  "Manila": {
+    "District 1": ["Tondo I"],
+    "District 2": ["Tondo II"],
+    "District 3": ["Binondo", "Quiapo", "San Nicolas"],
+    "District 4": ["Sampaloc"],
+    "District 5": ["Ermita", "Malate", "Paco"],
+    "District 6": ["Santa Ana", "Santa Mesa"]
+  },
+  "Quezon City": {
+    "District 1": ["Bahay Toro", "Katipunan", "Mariblo"],
+    "District 2": ["Batasan Hills", "Commonwealth", "Holy Spirit"],
+    "District 3": ["E. Rodriguez", "East Kamias", "West Kamias"],
+    "District 4": ["Kristong Hari", "U.P. Village", "Teachers Village"],
+    "District 5": ["Bagbag", "Greater Lagro", "Gulod"],
+    "District 6": ["Apolonio Samson", "Baesa", "Tandang Sora"]
+  },
+  "Caloocan": {
+    "District 1": ["Barangay 1", "Barangay 2", "Barangay 77"],
+    "District 2": ["Barangay 86", "Barangay 100"]
+  },
+  "Las Piñas": { "Lone District": ["Almanza Uno", "Pamplona Uno", "Talon Uno"] },
+  "Makati": { "District 1": ["Bel-Air", "Poblacion"], "District 2": ["Cembo", "Pembo"] },
+  "Malabon": { "District 1": ["Baritan"], "District 2": ["Acacia"] },
+  "Mandaluyong": { "District 1": ["Addition Hills", "Wack-Wack"], "District 2": ["Barangka", "Plainview"] },
+  "Marikina": { "District 1": ["Barangka"], "District 2": ["Concepcion Uno"] },
+  "Muntinlupa": { "District 1": ["Alabang"], "District 2": ["Ayala Alabang"] },
+  "Navotas": { "Lone District": ["Bagumbayan", "Navotas East"] },
+  "Parañaque": { "District 1": ["Baclaran"], "District 2": ["BF Homes"] },
+  "Pasay": { "Lone District": ["Barangay 1", "Barangay 2"] },
+  "Pasig": { "District 1": ["Bagong Ilog"], "District 2": ["Manggahan"] },
+  "Pateros": { "Lone District": ["Aguho", "Magtanggol"] },
+  "Taguig": { "District 1": ["Bagumbayan"], "District 2": ["Central Signal Village"] },
+  "Valenzuela": { "District 1": ["Arkong Bato"], "District 2": ["Bagbaguin"] },
+};
+
+const METRO_MANILA_CITIES = Object.keys(LOCATION_DATA).sort();
+
 const InfoModal = ({ isOpen, onClose, title, content }: { isOpen: boolean; onClose: () => void; title: string; content: React.ReactNode }) => {
   if (!isOpen) return null;
   return (
@@ -53,13 +96,24 @@ export const Register: React.FC = () => {
     firstName: '',
     middleName: '',
     lastName: '',
+    suffix: '',
+    citizenship: '', 
     birthDate: '',
     birthPlace: '',
-    sex: 'Male',
-    civilStatus: 'Single',
-    address: '',
+    sex: '', 
+    civilStatus: '', 
+    livingArrangement: '', 
+    livingArrangementSpecific: '', 
+    
+    // Address Breakdown
+    province: 'Metro Manila', 
+    city: '',
+    district: '',
+    barangay: '',
+    street: '',
+    houseNo: '',
+
     email: '',
-    password: '',
     contactNumber: '',
     emergencyContactName: '',
     emergencyContactNumber: '',
@@ -103,26 +157,44 @@ export const Register: React.FC = () => {
                     firstName: record.firstName,
                     middleName: record.middleName || '',
                     lastName: record.lastName,
+                    suffix: record.suffix || '',
+                    citizenship: '',
                     birthDate: record.birthDate,
-                    sex: record.sex || 'Male',
-                    civilStatus: record.civilStatus || 'Single',
-                    address: record.address || '',
+                    birthPlace: record.birthPlace || '',
+                    sex: record.sex || '',
+                    civilStatus: record.civilStatus || '',
+                    livingArrangement: '',
+                    livingArrangementSpecific: '',
+                    
+                    province: 'Metro Manila',
+                    city: record.city || '',
+                    district: record.district || '',
+                    barangay: record.barangay || '',
+                    street: record.street || '',
+                    houseNo: record.houseNo || '',
                 }));
             }
         } else {
             setVerificationStatus('not-found');
-            // Reset form for manual entry
             setFormData({
                 firstName: '',
                 middleName: '',
                 lastName: '',
+                suffix: '',
+                citizenship: '',
                 birthDate: '',
                 birthPlace: '',
-                sex: 'Male',
-                civilStatus: 'Single',
-                address: '',
+                sex: '',
+                civilStatus: '',
+                livingArrangement: '',
+                livingArrangementSpecific: '',
+                province: 'Metro Manila',
+                city: '',
+                district: '',
+                barangay: '',
+                street: '',
+                houseNo: '',
                 email: '',
-                password: '',
                 contactNumber: '',
                 emergencyContactName: '',
                 emergencyContactNumber: '',
@@ -136,6 +208,20 @@ export const Register: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAddressChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => {
+        const newData = { ...prev, [name]: value };
+        if (name === 'city') {
+            newData.district = '';
+            newData.barangay = '';
+        } else if (name === 'district') {
+            newData.barangay = '';
+        }
+        return newData;
+    });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0].name);
@@ -145,9 +231,9 @@ export const Register: React.FC = () => {
   const handleSubmit = () => {
     setSubmitted(true);
     setTimeout(() => {
-      alert('Registration Submitted! Please wait for approval.');
+      alert(`Registration Submitted! Your account credentials will be sent to ${formData.email || formData.contactNumber ? 'your email/contact number' : 'you'} once approved.`);
       navigate('/');
-    }, 1500);
+    }, 2000);
   };
 
   const nextStep = () => {
@@ -159,18 +245,12 @@ export const Register: React.FC = () => {
     if (currentStep > 1) setCurrentStep(c => c - 1);
   };
 
-  // Logic to allow proceeding:
-  // 1. Found + Unregistered + Eligible
-  // 2. Not Found (Manual Registration)
   const canProceedStep1 = (verificationStatus === 'found' && foundRecord && !foundRecord.isRegistered && isEligible) || 
                           (verificationStatus === 'not-found');
 
-  // Logic to show/hide bottom navigation
-  // Show only if:
-  // 1. Not in step 1 (always show for steps 2,3,4)
-  // 2. OR In step 1 AND can proceed
-  const showBottomNav = currentStep > 1 || canProceedStep1;
-
+  // Helper to get available options based on state
+  const availableDistricts = formData.city ? (LOCATION_DATA[formData.city] ? Object.keys(LOCATION_DATA[formData.city]) : []) : [];
+  
   const termsContent = (
     <div className="space-y-6 text-slate-600 leading-relaxed font-light">
         <div>
@@ -181,19 +261,11 @@ export const Register: React.FC = () => {
             <h4 className="font-bold text-slate-800 mb-2">2. Eligibility</h4>
             <p className="text-sm">Registration is strictly reserved for verified residents of San Juan City who are 60 years of age or older. Any false representation of age or residency is a violation of the law and will result in immediate disqualification and potential legal action.</p>
         </div>
-        <div>
-            <h4 className="font-bold text-slate-800 mb-2">3. User Responsibilities</h4>
-            <p className="text-sm">You are responsible for maintaining the confidentiality of your account credentials (username and password). You agree to provide accurate, current, and complete information during the registration process. All activities that occur under your account are your sole responsibility.</p>
-        </div>
-        <div>
-            <h4 className="font-bold text-slate-800 mb-2">4. Data Privacy</h4>
-            <p className="text-sm">We are committed to protecting your personal information in compliance with the Data Privacy Act of 2012. Your data is collected and used solely for the purpose of validating your identity and delivering social services, benefits, and assistance programs.</p>
-        </div>
     </div>
   );
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-white overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-white overflow-hidden font-sans">
       <InfoModal 
         isOpen={showTerms} 
         onClose={() => setShowTerms(false)} 
@@ -201,557 +273,338 @@ export const Register: React.FC = () => {
         content={termsContent} 
       />
 
-      {/* Header */}
-      <div className="bg-[#ef4444] p-4 text-white flex justify-between items-center shrink-0 shadow-md z-20 animate-fade-in-down">
-          <div className="flex items-center gap-2">
-              <button onClick={() => navigate('/')}><ArrowLeft size={20}/></button>
-              <h1 className="font-bold text-lg">Registration</h1>
-          </div>
-          <img src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" className="w-8 h-8" alt="San Juan Seal" />
+      {/* LEFT PANEL - Desktop Only */}
+      <div className="hidden lg:flex w-[35%] bg-gradient-to-br from-red-400 to-red-600 text-white flex-col relative overflow-hidden shrink-0">
+         {/* Background decoration */}
+         <div className="absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+         <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-black opacity-5 rounded-full blur-3xl pointer-events-none"></div>
+
+         <div className="p-10 flex flex-col h-full relative z-10 justify-between">
+            {/* Top Back Button */}
+            <button onClick={() => navigate('/')} className="flex items-center gap-3 text-white/90 hover:text-white transition-colors w-fit group">
+                <div className="p-2.5 bg-white/20 rounded-full group-hover:bg-white/30 transition-all backdrop-blur-sm border border-white/20">
+                    <ArrowLeft size={18}/>
+                </div>
+                <span className="text-sm font-medium tracking-wide">Back to home</span>
+            </button>
+
+            {/* Main Content */}
+            <div className="space-y-6 my-auto flex flex-col items-center text-center">
+                <div>
+                    <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight mb-4 drop-shadow-md leading-tight">“MABUHAY ! “</h1>
+                    <p className="text-base xl:text-lg text-white/95 leading-relaxed font-light max-w-sm drop-shadow-sm mx-auto">
+                       Mag-rehistro ngayon at tangkilikin ang inyong Senior Citizen Benefits.
+                    </p>
+                </div>
+
+                <div className="relative w-full aspect-[4/3] max-w-[280px] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/30 transform hover:scale-105 transition-all duration-700 mx-auto">
+                    <img 
+                        src="https://picsum.photos/seed/seniors_ph/800/600" 
+                        alt="Filipino Seniors Community" 
+                        className="object-cover w-full h-full" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                </div>
+            </div>
+
+            {/* Logos Footer */}
+            <div className="flex items-center justify-center pt-6">
+                 <img src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/Group-74.png" className="h-14 w-auto drop-shadow-lg hover:scale-105 transition-transform" alt="Official Partners" />
+            </div>
+         </div>
       </div>
 
-      {/* Main Content - Form Wizard */}
-      <div className="flex-1 bg-white flex flex-col h-full overflow-hidden relative">
-         {/* Step Progress Indicator */}
-         <div className="px-6 lg:px-16 pt-8 pb-2 shrink-0 animate-fade-in-down">
-             <div className="flex items-center justify-center gap-2 mb-2">
-                 {[1, 2, 3, 4].map((step) => (
-                     <React.Fragment key={step}>
-                         <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${currentStep >= step ? 'bg-[#ef4444]' : 'bg-slate-200'}`}></div>
-                         {step < 4 && (
-                             <div className={`h-1 w-16 lg:w-24 rounded-full transition-colors duration-300 ${currentStep > step ? 'bg-[#ef4444]' : 'bg-slate-100'}`}></div>
-                         )}
-                     </React.Fragment>
-                 ))}
+      {/* RIGHT PANEL - Form */}
+      <div className="flex-1 flex flex-col h-full bg-white relative overflow-hidden">
+         {/* Mobile Header */}
+         <div className="lg:hidden p-4 bg-[#ef4444] text-white flex justify-between items-center shadow-md z-20 shrink-0">
+             <div className="flex items-center gap-2">
+                <button onClick={() => navigate('/')}><ArrowLeft size={24} /></button>
+                <span className="font-bold text-lg">Registration</span>
              </div>
-             <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">
-                 Step {currentStep} of 4
-             </p>
+             <img src="https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Seal_of_San_Juan_Metro_Manila.png" className="w-8 h-8" />
          </div>
 
-         {/* Scrollable Form Area */}
-         <div className="flex-1 overflow-y-auto custom-scrollbar">
-             <div className="min-h-full flex flex-col justify-center px-6 lg:px-16 py-4">
-                 <div className="max-w-2xl w-full mx-auto space-y-6 pb-6">
-                 
-                 {/* STEP 1: VERIFICATION */}
-                 {currentStep === 1 && (
-                     <div className="animate-fade-in-up space-y-6">
-                         <div>
-                             <h2 className="text-3xl font-bold text-slate-800 mb-2">Identity Verification</h2>
-                             <p className="text-slate-500">Enter your LCR or PWD ID number to check for existing records.</p>
-                         </div>
+         {/* Progress Indicator */}
+         <div className="px-6 pt-6 pb-2 lg:px-20 lg:pt-12 shrink-0">
+            <div className="flex items-center justify-center gap-4 max-w-2xl mx-auto">
+                {[1, 2, 3, 4].map(step => (
+                    <React.Fragment key={step}>
+                        <div className={`w-4 h-4 rounded-full transition-all duration-300 shadow-sm ${currentStep >= step ? 'bg-[#ef4444] scale-110' : 'bg-slate-200'}`}></div>
+                        {step < 4 && <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${currentStep > step ? 'bg-[#ef4444]' : 'bg-slate-100'}`}></div>}
+                    </React.Fragment>
+                ))}
+            </div>
+         </div>
 
-                         <form onSubmit={handleVerify} className="space-y-4">
-                            <div className="relative group">
-                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#ef4444] transition-colors" size={20} />
-                                <input 
-                                    type="text" 
-                                    placeholder="e.g. LCR-2024-001"
-                                    className="w-full pl-12 pr-6 py-4 bg-slate-100 rounded-[2rem] border-none focus:ring-2 focus:ring-[#ef4444] transition-all outline-none font-medium text-slate-800 text-lg placeholder:text-slate-400"
-                                    value={searchId}
-                                    onChange={(e) => {
-                                        setSearchId(e.target.value);
-                                        setVerificationStatus('idle');
-                                    }}
-                                />
+         {/* Scrollable Form Content */}
+         <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-6 lg:px-20 lg:py-8">
+            <div className="max-w-3xl mx-auto min-h-full flex flex-col justify-center">
+                
+                {/* STEP 1: VERIFICATION */}
+                {currentStep === 1 && (
+                    <div className="animate-fade-in-up space-y-8">
+                        <div>
+                            <h2 className="text-4xl font-bold text-slate-800 mb-3">Identity Verification</h2>
+                            <p className="text-slate-500 text-lg">Enter your LCR or PWD ID number to check for existing records.</p>
+                        </div>
+
+                        <form onSubmit={handleVerify} className="space-y-6">
+                           <div className="relative group">
+                               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#ef4444] transition-colors" size={24} />
+                               <input 
+                                   type="text" 
+                                   placeholder="e.g. LCR-2024-001"
+                                   className="w-full pl-16 pr-6 py-5 bg-slate-100 rounded-2xl border-2 border-transparent focus:border-[#ef4444] focus:bg-white transition-all outline-none font-bold text-slate-800 text-xl placeholder:text-slate-400 placeholder:font-normal"
+                                   value={searchId}
+                                   onChange={(e) => {
+                                       setSearchId(e.target.value);
+                                       setVerificationStatus('idle');
+                                   }}
+                               />
+                           </div>
+                           <button 
+                               type="submit"
+                               disabled={!searchId || verificationStatus === 'searching'}
+                               className="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold text-xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1"
+                           >
+                               {verificationStatus === 'searching' ? 'Checking Database...' : 'Check ID Number'}
+                           </button>
+                        </form>
+
+                        {/* Found/Not Found Display Code */}
+                        {verificationStatus === 'found' && foundRecord && (
+                           <div className={`border rounded-3xl p-8 animate-scale-up ${foundRecord.isRegistered ? 'bg-emerald-50 border-emerald-200' : isEligible ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
+                               <div className="flex items-center gap-4 mb-6">
+                                   <div className={`p-3 rounded-full ${foundRecord.isRegistered ? 'bg-emerald-100 text-emerald-600' : isEligible ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'}`}>
+                                       {foundRecord.isRegistered ? <CheckCircle2 size={32} /> : isEligible ? <Star size={32} /> : <XCircle size={32} />}
+                                   </div>
+                                   <div>
+                                       <h3 className={`font-bold text-xl ${foundRecord.isRegistered ? 'text-emerald-900' : isEligible ? 'text-amber-900' : 'text-red-900'}`}>
+                                           {foundRecord.isRegistered ? 'Account Exists' : isEligible ? 'Record Found' : 'Not Eligible'}
+                                       </h3>
+                                       <p className={`text-sm ${foundRecord.isRegistered ? 'text-emerald-700' : isEligible ? 'text-amber-700' : 'text-red-700'}`}>
+                                           {foundRecord.isRegistered ? 'This ID is already associated with an account.' : isEligible ? 'Your record was found and you are eligible.' : 'You do not meet the age requirement.'}
+                                       </p>
+                                   </div>
+                               </div>
+                               <div className="bg-white/60 rounded-2xl p-5 mb-6 space-y-3 shadow-sm">
+                                   <p className="font-bold text-slate-800 text-2xl">{foundRecord.firstName} {foundRecord.lastName}</p>
+                                   <p className="text-slate-500 font-medium flex items-center gap-2"><MapPin size={16}/> {foundRecord.address || `${foundRecord.street}, ${foundRecord.city}`}</p>
+                                   <div className="flex items-center gap-2 pt-2">
+                                       <span className={`text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 ${isEligible ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                                           {isEligible ? <Star size={14} /> : <AlertCircle size={14} />} Age: {calculatedAge} years old
+                                       </span>
+                                   </div>
+                               </div>
+                               {foundRecord.isRegistered ? (
+                                   <button onClick={() => navigate('/', { state: { openLogin: true } })} className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 text-lg"><LogIn size={20} /> Login to your account</button>
+                               ) : isEligible ? (
+                                   <p className="text-amber-800 text-center font-bold bg-amber-100/50 p-4 rounded-2xl">Please proceed by clicking <span className="underline">Next</span> below.</p>
+                               ) : (
+                                   <div className="text-center text-red-800 font-bold bg-red-100/50 p-4 rounded-2xl flex items-center justify-center gap-2"><XCircle size={20} /> Minimum age requirement is 60.</div>
+                               )}
+                           </div>
+                        )}
+
+                        {verificationStatus === 'not-found' && (
+                            <div className="bg-red-50 border border-red-200 rounded-3xl p-8 text-center animate-scale-up">
+                                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><XCircle size={32} /></div>
+                                <h3 className="font-bold text-red-900 text-xl mb-2">Record Not Found</h3>
+                                <p className="text-red-700 mb-6">We couldn't find ID <strong>{searchId}</strong> in the masterlist.</p>
+                                <p className="text-red-600 bg-white/50 p-4 rounded-2xl border border-red-100 font-medium">You can proceed with <strong>Manual Registration</strong> by clicking the Next button below.</p>
                             </div>
-                            <button 
-                                type="submit"
-                                disabled={!searchId || verificationStatus === 'searching'}
-                                className="w-full py-4 bg-slate-800 text-white rounded-[2rem] font-bold text-lg hover:bg-slate-900 transition-all shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {verificationStatus === 'searching' ? 'Checking Database...' : 'Check ID Number'}
-                            </button>
-                         </form>
-
-                         {/* 1. Found Record Display */}
-                         {verificationStatus === 'found' && foundRecord && (
-                            <div className={`border rounded-3xl p-6 animate-scale-up ${
-                                foundRecord.isRegistered 
-                                ? 'bg-emerald-50 border-emerald-200' // Green (Registered)
-                                : isEligible 
-                                  ? 'bg-amber-50 border-amber-200' // Yellow (Eligible)
-                                  : 'bg-red-50 border-red-200' // Red (Not Eligible)
-                            }`}>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className={`p-2 rounded-full ${
-                                        foundRecord.isRegistered 
-                                        ? 'bg-emerald-100 text-emerald-600'
-                                        : isEligible 
-                                          ? 'bg-amber-100 text-amber-600'
-                                          : 'bg-red-100 text-red-600'
-                                    }`}>
-                                        {foundRecord.isRegistered ? <CheckCircle2 size={24} /> : isEligible ? <Star size={24} /> : <XCircle size={24} />}
-                                    </div>
-                                    <div>
-                                        <h3 className={`font-bold text-lg ${
-                                            foundRecord.isRegistered ? 'text-emerald-900' : isEligible ? 'text-amber-900' : 'text-red-900'
-                                        }`}>
-                                            {foundRecord.isRegistered ? 'Account Exists' : isEligible ? 'Record Found' : 'Not Eligible'}
-                                        </h3>
-                                        <p className={`text-sm ${
-                                            foundRecord.isRegistered ? 'text-emerald-700' : isEligible ? 'text-amber-700' : 'text-red-700'
-                                        }`}>
-                                            {foundRecord.isRegistered 
-                                                ? 'This ID is already associated with an account.' 
-                                                : isEligible 
-                                                  ? 'Your record was found and you are eligible.' 
-                                                  : 'You do not meet the age requirement.'}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="bg-white/60 rounded-2xl p-4 mb-4 space-y-2">
-                                    <p className="font-bold text-slate-800 text-lg">{foundRecord.firstName} {foundRecord.lastName}</p>
-                                    <p className="text-slate-500 text-sm flex items-center gap-2"><MapPin size={14}/> {foundRecord.address}</p>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <span className={`text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 ${
-                                            isEligible ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
-                                        }`}>
-                                            {isEligible ? <Star size={12} /> : <AlertCircle size={12} />} 
-                                            Age: {calculatedAge} years old
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                {foundRecord.isRegistered ? (
-                                    <button 
-                                        onClick={() => navigate('/', { state: { openLogin: true } })}
-                                        className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20"
-                                    >
-                                        <LogIn size={18} /> Login to your account
+                        )}
+                        
+                        {/* Demo Data Helper */}
+                        <div className="mt-8 pt-6 border-t border-slate-100">
+                            <div className="flex items-center gap-2 mb-4"><div className="p-1.5 bg-slate-100 rounded-lg text-slate-500"><Info size={16} /></div><span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Demo Data</span></div>
+                            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                                {registryRecords.slice(0, 3).map((record) => (
+                                    <button key={record.id} onClick={() => { setSearchId(record.id); setVerificationStatus('idle'); }} className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 text-xs text-slate-600 font-mono whitespace-nowrap transition-colors">
+                                        {record.id}
                                     </button>
-                                ) : isEligible ? (
-                                    <p className="text-sm text-amber-800 text-center font-medium bg-amber-100/50 p-2 rounded-xl">
-                                        Please proceed by clicking <strong>Next</strong> below.
-                                    </p>
-                                ) : (
-                                    <div className="text-center text-red-800 font-medium bg-red-100/50 p-3 rounded-xl flex items-center justify-center gap-2">
-                                        <XCircle size={16} /> Minimum age requirement is 60.
-                                    </div>
-                                )}
+                                ))}
+                                <button onClick={() => { setSearchId('UNKNOWN-999'); setVerificationStatus('idle'); }} className="px-3 py-1.5 rounded-lg bg-red-50 border border-red-100 hover:bg-red-100 text-xs text-red-600 font-mono whitespace-nowrap transition-colors">
+                                   TEST-NOT-FOUND
+                                </button>
                             </div>
-                         )}
+                        </div>
+                    </div>
+                )}
 
-                         {/* 2. Not Found Display (RED) */}
-                         {verificationStatus === 'not-found' && (
-                             <div className="bg-red-50 border border-red-200 rounded-3xl p-6 text-center animate-scale-up">
-                                 <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                                     <XCircle size={24} />
-                                 </div>
-                                 <h3 className="font-bold text-red-900">Record Not Found</h3>
-                                 <p className="text-red-700 text-sm mb-4">We couldn't find ID <strong>{searchId}</strong> in the masterlist.</p>
-                                 <p className="text-sm text-red-600 bg-white/50 p-3 rounded-xl border border-red-100">
-                                     You can proceed with <strong>Manual Registration</strong> by clicking the button below.
-                                 </p>
-                             </div>
-                         )}
-
-                         {/* Test Data Display for Demo */}
-                         <div className="mt-8 pt-6 border-t border-slate-100">
-                             <div className="flex items-center gap-2 mb-4">
-                                 <div className="p-1.5 bg-slate-100 rounded-lg text-slate-500">
-                                    <Info size={16} />
-                                 </div>
-                                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Demo Data: Available Records</span>
-                             </div>
-                             <div className="grid gap-3 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                                 {registryRecords.map((record) => {
-                                     const recAge = calculateAge(record.birthDate);
-                                     const recEligible = recAge >= 60;
-                                     // Green: Registered
-                                     // Yellow: !Registered & Eligible
-                                     // Red: !Registered & !Eligible
-                                     let borderClass = '';
-                                     let bgClass = '';
-                                     let textClass = '';
-                                     let badgeClass = '';
-
-                                     if (record.isRegistered) {
-                                         borderClass = 'border-emerald-200 hover:border-emerald-300';
-                                         bgClass = 'bg-emerald-50';
-                                         textClass = 'text-emerald-900';
-                                         badgeClass = 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                                     } else if (recEligible) {
-                                         borderClass = 'border-amber-200 hover:border-amber-300';
-                                         bgClass = 'bg-amber-50';
-                                         textClass = 'text-amber-900';
-                                         badgeClass = 'bg-amber-100 text-amber-700 border-amber-200';
-                                     } else {
-                                         borderClass = 'border-red-200 hover:border-red-300';
-                                         bgClass = 'bg-red-50';
-                                         textClass = 'text-red-900';
-                                         badgeClass = 'bg-red-100 text-red-700 border-red-200';
-                                     }
-
-                                     return (
-                                        <button 
-                                            key={record.id}
-                                            onClick={() => {
-                                                setSearchId(record.id);
-                                                setVerificationStatus('idle');
-                                            }}
-                                            className={`flex items-center justify-between p-3 rounded-xl border transition-all group text-left w-full ${borderClass} ${bgClass}`}
-                                        >
-                                            <div>
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className={`font-mono text-xs font-bold px-1.5 py-0.5 rounded border ${badgeClass}`}>
-                                                        {record.id}
-                                                    </span>
-                                                    {record.isRegistered ? (
-                                                         <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1"><CheckCircle2 size={10} /> Reg</span>
-                                                    ) : recEligible ? (
-                                                         <span className="text-[10px] font-bold text-amber-600 flex items-center gap-1"><Star size={10} /> Eligible</span>
-                                                    ) : (
-                                                         <span className="text-[10px] font-bold text-red-600 flex items-center gap-1"><XCircle size={10} /> Ineligible</span>
-                                                    )}
-                                                </div>
-                                                <div className={`text-xs font-medium ${textClass}`}>
-                                                    {record.firstName} {record.lastName} • {recAge} y/o
-                                                </div>
-                                            </div>
-                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 text-xs font-bold">
-                                                Use
-                                            </div>
-                                        </button>
-                                     );
-                                 })}
-                                 {/* Manual Not Found Button */}
-                                 <button 
-                                    onClick={() => {
-                                        setSearchId('UNKNOWN-ID-999');
-                                        setVerificationStatus('idle');
-                                    }}
-                                    className="flex items-center justify-between p-3 rounded-xl border border-red-200 bg-red-50 hover:border-red-300 transition-all group text-left w-full"
-                                 >
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-mono text-xs font-bold px-1.5 py-0.5 rounded border bg-red-100 text-red-700 border-red-200">
-                                                UNKNOWN-ID-999
-                                            </span>
-                                            <span className="text-[10px] font-bold text-red-600 flex items-center gap-1"><XCircle size={10} /> Not Found</span>
-                                        </div>
-                                        <div className="text-xs font-medium text-red-900">
-                                            Test "Not Found" Scenario
-                                        </div>
-                                    </div>
-                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 text-xs font-bold">
-                                        Test
-                                    </div>
-                                 </button>
-                             </div>
-                         </div>
-                     </div>
-                 )}
-
-                 {/* STEP 2: PERSONAL INFO */}
-                 {currentStep === 2 && (
-                     <div className="animate-fade-in-up space-y-5">
-                         <div>
-                             <h2 className="text-3xl font-bold text-slate-800 mb-2">Personal na Impormasyon</h2>
-                             <p className="text-slate-500">Please provide your personal details exactly as they appear on your birth certificate.</p>
-                         </div>
-                         
-                         <div className="space-y-4">
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Unang Pangalan (First Name)</label>
-                                     <input 
-                                         type="text" 
-                                         name="firstName"
-                                         value={formData.firstName}
-                                         onChange={handleInputChange}
-                                         readOnly={verificationStatus === 'found'}
-                                         className={`w-full px-6 py-3 rounded-full border-none focus:ring-2 focus:ring-[#ef4444] outline-none transition-all ${verificationStatus === 'found' ? 'bg-slate-100 text-slate-500' : 'bg-slate-100 text-slate-800'}`}
-                                         placeholder="Juan"
-                                     />
-                                 </div>
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Apelyido (Last Name)</label>
-                                     <input 
-                                         type="text" 
-                                         name="lastName"
-                                         value={formData.lastName}
-                                         onChange={handleInputChange}
-                                         readOnly={verificationStatus === 'found'}
-                                         className={`w-full px-6 py-3 rounded-full border-none focus:ring-2 focus:ring-[#ef4444] outline-none transition-all ${verificationStatus === 'found' ? 'bg-slate-100 text-slate-500' : 'bg-slate-100 text-slate-800'}`}
-                                         placeholder="Dela Cruz"
-                                     />
-                                 </div>
-                             </div>
-
-                             <div className="space-y-1">
-                                 <label className="text-sm font-bold text-slate-700 ml-2">Gitnang Pangalan (Middle Name)</label>
-                                 <input 
-                                     type="text" 
-                                     name="middleName"
-                                     value={formData.middleName}
-                                     onChange={handleInputChange}
-                                     className="w-full px-6 py-3 rounded-full bg-slate-100 border-none focus:ring-2 focus:ring-[#ef4444] outline-none text-slate-800 transition-all"
-                                     placeholder="Santos"
-                                 />
-                             </div>
-
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Petsa ng Kapanganakan</label>
-                                     <div className="relative">
-                                         <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                         <input 
-                                             type="date" 
-                                             name="birthDate"
-                                             value={formData.birthDate}
-                                             onChange={handleInputChange}
-                                             readOnly={verificationStatus === 'found'}
-                                             className={`w-full pl-12 pr-6 py-3 rounded-full border-none focus:ring-2 focus:ring-[#ef4444] outline-none transition-all ${verificationStatus === 'found' ? 'bg-slate-100 text-slate-500' : 'bg-slate-100 text-slate-800'}`}
-                                         />
-                                     </div>
-                                 </div>
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Lugar ng Kapanganakan</label>
-                                     <input 
-                                         type="text" 
-                                         name="birthPlace"
-                                         value={formData.birthPlace}
-                                         onChange={handleInputChange}
-                                         className="w-full px-6 py-3 rounded-full bg-slate-100 border-none focus:ring-2 focus:ring-[#ef4444] outline-none text-slate-800 transition-all"
-                                         placeholder="City, Province"
-                                     />
-                                 </div>
-                             </div>
-
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Kasarian (Sex)</label>
-                                     <div className="relative">
-                                         <select 
-                                             name="sex"
-                                             value={formData.sex}
-                                             onChange={handleInputChange}
-                                             disabled={verificationStatus === 'found'}
-                                             className="w-full px-6 py-3 rounded-full bg-slate-100 border-none focus:ring-2 focus:ring-[#ef4444] outline-none text-slate-800 appearance-none transition-all cursor-pointer"
-                                         >
-                                             <option>Male</option>
-                                             <option>Female</option>
-                                         </select>
-                                         <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 rotate-90" size={16} />
-                                     </div>
-                                 </div>
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Katayuang Sibil</label>
-                                     <div className="relative">
-                                         <select 
-                                             name="civilStatus"
-                                             value={formData.civilStatus}
-                                             onChange={handleInputChange}
-                                             disabled={verificationStatus === 'found'}
-                                             className="w-full px-6 py-3 rounded-full bg-slate-100 border-none focus:ring-2 focus:ring-[#ef4444] outline-none text-slate-800 appearance-none transition-all cursor-pointer"
-                                         >
-                                             <option>Single</option>
-                                             <option>Married</option>
-                                             <option>Widowed</option>
-                                             <option>Separated</option>
-                                         </select>
-                                         <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 rotate-90" size={16} />
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 )}
-
-                 {/* STEP 3: CONTACT & ACCOUNT */}
-                 {currentStep === 3 && (
-                     <div className="animate-fade-in-up space-y-5">
-                         <div>
-                             <h2 className="text-3xl font-bold text-slate-800 mb-2">Impormasyon sa Pakikipag-ugnayan</h2>
-                             <p className="text-slate-500">Provide your current address and contact details.</p>
-                         </div>
-                         
-                         <div className="space-y-4">
-                             <div className="space-y-1">
-                                 <label className="text-sm font-bold text-slate-700 ml-2">Kasalukuyang Tirahan (Address)</label>
-                                 <div className="relative">
-                                     <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                     <input 
-                                         type="text" 
-                                         name="address"
-                                         value={formData.address}
-                                         onChange={handleInputChange}
-                                         readOnly={verificationStatus === 'found'}
-                                         className={`w-full pl-12 pr-6 py-3 rounded-full border-none focus:ring-2 focus:ring-[#ef4444] outline-none transition-all ${verificationStatus === 'found' ? 'bg-slate-100 text-slate-500' : 'bg-slate-100 text-slate-800'}`}
-                                         placeholder="House No., Street, Barangay"
-                                     />
-                                 </div>
-                             </div>
-
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Numero ng Telepono</label>
-                                     <div className="relative">
-                                         <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                         <input 
-                                             type="tel" 
-                                             name="contactNumber"
-                                             value={formData.contactNumber}
-                                             onChange={handleInputChange}
-                                             className="w-full pl-12 pr-6 py-3 rounded-full bg-slate-100 border-none focus:ring-2 focus:ring-[#ef4444] outline-none text-slate-800 transition-all"
-                                             placeholder="0912 345 6789"
-                                         />
-                                     </div>
-                                 </div>
-                                 <div className="space-y-1">
-                                     <label className="text-sm font-bold text-slate-700 ml-2">Email Address</label>
-                                     <div className="relative">
-                                         <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                         <input 
-                                             type="email" 
-                                             name="email"
-                                             value={formData.email}
-                                             onChange={handleInputChange}
-                                             className="w-full pl-12 pr-6 py-3 rounded-full bg-slate-100 border-none focus:ring-2 focus:ring-[#ef4444] outline-none text-slate-800 transition-all"
-                                             placeholder="juan@example.com"
-                                         />
-                                     </div>
-                                 </div>
-                             </div>
+                {/* STEP 2: PERSONAL INFO */}
+                {currentStep === 2 && (
+                    <div className="animate-fade-in-up space-y-8">
+                        <div>
+                            <h2 className="text-4xl font-bold text-slate-800 mb-3">Personal na Impormasyon</h2>
+                            <p className="text-slate-500 text-lg">Provide personal details exactly as on your birth certificate.</p>
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Unang Pangalan</label>
+                                    <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} readOnly={verificationStatus === 'found'} className="w-full px-5 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none transition-all font-medium text-slate-800" placeholder="" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Apelyido</label>
+                                    <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} readOnly={verificationStatus === 'found'} className="w-full px-5 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none transition-all font-medium text-slate-800" placeholder="" />
+                                </div>
+                            </div>
                             
-                             <div className="bg-red-50 p-4 rounded-3xl border border-red-100 space-y-4">
-                                 <h4 className="font-bold text-red-800 flex items-center gap-2 text-sm">
-                                     <Heart size={16} className="fill-red-800" /> In Case of Emergency
-                                 </h4>
-                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                     <div className="space-y-1">
-                                         <label className="text-xs font-bold text-red-700 ml-2 uppercase">Contact Person</label>
-                                         <input 
-                                             type="text" 
-                                             name="emergencyContactName"
-                                             value={formData.emergencyContactName}
-                                             onChange={handleInputChange}
-                                             className="w-full px-5 py-2 rounded-xl bg-white border border-red-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-slate-800 text-sm"
-                                             placeholder="Name of relative"
-                                         />
-                                     </div>
-                                     <div className="space-y-1">
-                                         <label className="text-xs font-bold text-red-700 ml-2 uppercase">Emergency Number</label>
-                                         <input 
-                                             type="tel" 
-                                             name="emergencyContactNumber"
-                                             value={formData.emergencyContactNumber}
-                                             onChange={handleInputChange}
-                                             className="w-full px-5 py-2 rounded-xl bg-white border border-red-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-slate-800 text-sm"
-                                             placeholder="0912 345 6789"
-                                         />
-                                     </div>
-                                 </div>
-                             </div>
-
-                             <div className="space-y-1 pt-2 border-t border-slate-100">
-                                 <label className="text-sm font-bold text-slate-700 ml-2">Create Password</label>
-                                 <div className="relative">
-                                     <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                     <input 
-                                         type="password" 
-                                         name="password"
-                                         value={formData.password}
-                                         onChange={handleInputChange}
-                                         className="w-full pl-12 pr-6 py-3 rounded-full bg-slate-100 border-none focus:ring-2 focus:ring-[#ef4444] outline-none text-slate-800 transition-all"
-                                         placeholder="At least 6 characters"
-                                     />
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 )}
-
-                 {/* STEP 4: DOCUMENTS & TERMS */}
-                 {currentStep === 4 && (
-                     <div className="animate-fade-in-up space-y-8">
-                         <div>
-                             <h2 className="text-3xl font-bold text-slate-800 mb-2">Requirements & Submission</h2>
-                             <p className="text-slate-500">Upload verification documents and review terms.</p>
-                         </div>
-
-                         <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] p-8 text-center hover:border-[#ef4444] hover:bg-red-50/30 transition-all cursor-pointer relative group">
-                            <input 
-                                type="file" 
-                                onChange={handleFileChange}
-                                accept="image/*,.pdf"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                            />
-                            <div className="w-16 h-16 bg-white text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                                {file ? <FileCheck className="text-emerald-500" size={32} /> : <Upload size={32} />}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Gitnang Pangalan</label>
+                                <input type="text" name="middleName" value={formData.middleName} onChange={handleInputChange} className="w-full px-5 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none transition-all font-medium text-slate-800" placeholder="" />
                             </div>
-                            {file ? (
-                                <div>
-                                    <p className="font-bold text-emerald-600 text-lg">{file}</p>
-                                    <p className="text-slate-400 text-sm">Click to change file</p>
-                                </div>
-                            ) : (
-                                <div>
-                                    <p className="font-bold text-slate-700 text-lg">Upload Birth Certificate</p>
-                                    <p className="text-slate-400 text-sm mt-1">or Valid Government ID (JPG, PNG, PDF)</p>
-                                </div>
-                            )}
-                         </div>
 
-                         <div className="bg-slate-50 p-6 rounded-3xl flex items-start gap-4">
-                            <div className="pt-1">
-                                <input 
-                                    type="checkbox" 
-                                    id="terms"
-                                    checked={agreed}
-                                    onChange={(e) => setAgreed(e.target.checked)}
-                                    className="w-5 h-5 text-[#ef4444] rounded focus:ring-[#ef4444] border-gray-300"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Petsa ng Kapanganakan</label>
+                                    <input type="date" name="birthDate" value={formData.birthDate} onChange={handleInputChange} readOnly={verificationStatus === 'found'} className="w-full px-5 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none transition-all font-medium text-slate-800" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Lugar ng Kapanganakan</label>
+                                    <input type="text" name="birthPlace" value={formData.birthPlace} onChange={handleInputChange} readOnly={verificationStatus === 'found' && !!formData.birthPlace} className="w-full px-5 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none transition-all font-medium text-slate-800" placeholder="" />
+                                </div>
                             </div>
-                            <label htmlFor="terms" className="text-sm text-slate-600 leading-relaxed cursor-pointer select-none">
-                                <span className="font-bold text-slate-800 block mb-1 flex items-center gap-2"><ShieldCheck size={16}/> Data Privacy & Consent</span>
-                                I certify that the information provided is true and correct. I have read and agree to the <span onClick={(e) => {e.preventDefault(); setShowTerms(true)}} className="text-[#ef4444] font-bold hover:underline">Terms and Conditions</span> and <span className="text-[#ef4444] font-bold hover:underline">Privacy Policy</span>.
-                            </label>
-                         </div>
-                     </div>
-                 )}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Kasarian</label>
+                                    <div className="relative">
+                                        <select name="sex" value={formData.sex} onChange={handleInputChange} disabled={verificationStatus === 'found'} className="w-full px-5 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none text-slate-800 appearance-none font-medium">
+                                            <option value="" disabled>Select</option><option>Male</option><option>Female</option>
+                                        </select>
+                                        <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={18} />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Katayuang Sibil</label>
+                                    <div className="relative">
+                                        <select name="civilStatus" value={formData.civilStatus} onChange={handleInputChange} disabled={verificationStatus === 'found'} className="w-full px-5 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none text-slate-800 appearance-none font-medium">
+                                            <option value="" disabled>Select</option><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option>
+                                        </select>
+                                        <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={18} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* STEP 3: CONTACT & ACCOUNT */}
+                {currentStep === 3 && (
+                    <div className="animate-fade-in-up space-y-8">
+                        <div>
+                            <h2 className="text-4xl font-bold text-slate-800 mb-3">Impormasyon sa Pakikipag-ugnayan</h2>
+                            <p className="text-slate-500 text-lg">Provide your current address and contact details.</p>
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 space-y-6">
+                               <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2"><MapPin className="text-[#ef4444]" size={20} /> Tirahan (Address)</h3>
+                               
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                   <div className="space-y-2">
+                                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Lungsod (City)</label>
+                                       <div className="relative">
+                                           <select name="city" value={formData.city} onChange={handleAddressChange} className="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-[#ef4444] outline-none text-slate-800 appearance-none font-medium">
+                                               <option value="" disabled>Select City</option>
+                                               {METRO_MANILA_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                           </select>
+                                           <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={16} />
+                                       </div>
+                                   </div>
+                                   <div className="space-y-2">
+                                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Barangay</label>
+                                       <div className="relative">
+                                           {/* Simplified logic for demo: District/Barangay */}
+                                           <select name="barangay" value={formData.barangay} onChange={handleInputChange} className="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-[#ef4444] outline-none text-slate-800 appearance-none font-medium">
+                                               <option value="" disabled>Select Barangay</option>
+                                               {availableDistricts.flatMap(d => LOCATION_DATA[formData.city]?.[d] || []).map(b => <option key={b} value={b}>{b}</option>)}
+                                           </select>
+                                           <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={16} />
+                                       </div>
+                                   </div>
+                                   <div className="space-y-2 md:col-span-2">
+                                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Kalye at Numero (Street & No.)</label>
+                                       <input type="text" name="street" value={formData.street} onChange={handleInputChange} className="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-[#ef4444] outline-none text-slate-800 font-medium" placeholder="e.g. 123 Rizal St." />
+                                   </div>
+                               </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Numero ng Telepono</label>
+                                    <div className="relative"><Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleInputChange} className="w-full pl-12 pr-6 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none transition-all font-medium text-slate-800" placeholder="0912 345 6789" /></div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700">Email Address</label>
+                                    <div className="relative"><Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full pl-12 pr-6 py-4 rounded-xl bg-slate-100 border-2 border-transparent focus:border-[#ef4444] focus:bg-white outline-none transition-all font-medium text-slate-800" placeholder="juan@example.com" /></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* STEP 4: DOCUMENTS & TERMS */}
+                {currentStep === 4 && (
+                    <div className="animate-fade-in-up space-y-8">
+                        <div>
+                            <h2 className="text-4xl font-bold text-slate-800 mb-3">Requirements</h2>
+                            <p className="text-slate-500 text-lg">Upload verification documents and review terms.</p>
+                        </div>
+
+                        <div className="border-3 border-dashed border-slate-200 rounded-[2.5rem] p-10 text-center hover:border-[#ef4444] hover:bg-slate-50 transition-all cursor-pointer relative group">
+                           <input type="file" onChange={handleFileChange} accept="image/*,.pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                           <div className="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner group-hover:scale-110 transition-transform">
+                               {file ? <FileCheck className="text-emerald-500" size={40} /> : <Upload size={40} />}
+                           </div>
+                           {file ? (
+                               <div><p className="font-bold text-emerald-600 text-xl">{file}</p><p className="text-slate-400 mt-2 font-medium">Click to change file</p></div>
+                           ) : (
+                               <div><p className="font-bold text-slate-800 text-xl">Upload Birth Certificate</p><p className="text-slate-500 mt-2 font-medium">or Valid Government ID (JPG, PNG, PDF)</p></div>
+                           )}
+                        </div>
+
+                        <div className="bg-slate-50 p-6 rounded-3xl flex items-start gap-4 border border-slate-100">
+                           <div className="pt-1"><input type="checkbox" id="terms" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="w-6 h-6 text-[#ef4444] rounded focus:ring-[#ef4444] border-gray-300" /></div>
+                           <label htmlFor="terms" className="text-slate-600 leading-relaxed cursor-pointer select-none font-medium text-sm">
+                               <span className="font-bold text-slate-800 block mb-1 flex items-center gap-2 text-base"><ShieldCheck size={20}/> Data Privacy & Consent</span> 
+                               I certify that the information provided is true and correct. I have read and agree to the <span onClick={(e) => {e.preventDefault(); setShowTerms(true)}} className="text-[#ef4444] font-bold hover:underline">Terms and Conditions</span>.
+                           </label>
+                        </div>
+                    </div>
+                )}
+
+            </div>
+         </div>
+
+         {/* Footer Navigation */}
+         <div className="p-6 lg:px-20 lg:py-8 bg-white border-t border-slate-100 flex items-center justify-between shrink-0">
+             <button onClick={() => setShowTerms(true)} className="flex items-center gap-2 text-slate-400 hover:text-[#ef4444] transition-colors text-sm font-medium">
+                 <Info size={16} /> Terms & Conditions
+             </button>
+
+             <div className="flex items-center gap-8 font-bold text-lg select-none">
+                 <div className="flex gap-4 text-slate-300 hidden md:flex">
+                    {[1, 2, 3, 4].map(s => <span key={s} className={currentStep === s ? 'text-[#ef4444] scale-125 transition-transform' : 'transition-colors'}>{s}</span>)}
+                 </div>
+                 
+                 <div className="flex gap-4">
+                     {currentStep > 1 && <button onClick={prevStep} className="text-slate-400 hover:text-slate-600">Back</button>}
+                     <button 
+                        onClick={nextStep} 
+                        disabled={(currentStep === 1 && !canProceedStep1) || (currentStep === 4 && !agreed)}
+                        className="text-[#ef4444] hover:text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                     >
+                        {currentStep === 4 ? (submitted ? 'Processing...' : 'Submit') : (currentStep === 1 && verificationStatus === 'not-found' ? 'Proceed Manually' : 'Next')}
+                        {currentStep < 4 && <ArrowRight size={20} />}
+                     </button>
                  </div>
              </div>
          </div>
-
-         {/* Bottom Navigation */}
-         {showBottomNav && (
-             <div className="bg-white border-t border-slate-100 p-4 lg:px-16 flex items-center justify-between shrink-0 animate-fade-in-up" style={{ animationDelay: '50ms' }}>
-                 <div className="hidden sm:flex gap-6 text-sm font-bold text-slate-300 select-none">
-                     <span className={`transition-colors ${currentStep === 1 ? 'text-[#ef4444]' : 'text-slate-800'}`}>1</span>
-                     <span className={`transition-colors ${currentStep === 2 ? 'text-[#ef4444]' : currentStep > 2 ? 'text-slate-800' : ''}`}>2</span>
-                     <span className={`transition-colors ${currentStep === 3 ? 'text-[#ef4444]' : currentStep > 3 ? 'text-slate-800' : ''}`}>3</span>
-                     <span className={`transition-colors ${currentStep === 4 ? 'text-[#ef4444]' : ''}`}>4</span>
-                 </div>
-
-                 <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                     <button 
-                        onClick={prevStep} 
-                        disabled={currentStep === 1}
-                        className={`text-slate-500 font-bold hover:text-slate-800 px-4 py-2 rounded-xl transition-colors ${currentStep === 1 ? 'opacity-0 pointer-events-none' : ''}`}
-                     >
-                         Back
-                     </button>
-                     
-                     <button
-                         onClick={nextStep}
-                         // Disabled if Step 1 (controlled by showBottomNav visibility really, but for safety)
-                         disabled={(currentStep === 1 && !canProceedStep1)}
-                         className={`font-bold flex items-center gap-2 px-6 py-3 rounded-xl transition-all shadow-lg ${
-                            currentStep === 4 
-                            ? (agreed && !submitted ? 'bg-[#ef4444] text-white hover:bg-red-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none')
-                            : 'text-[#ef4444] hover:bg-red-50'
-                         }`}
-                     >
-                         {currentStep === 4 ? (submitted ? 'Processing...' : 'Submit Application') : (currentStep === 1 && verificationStatus === 'not-found' ? 'Proceed Manually' : 'Next')} 
-                         {currentStep < 4 && <ArrowLeft className="rotate-180" size={20} />}
-                     </button>
-                 </div>
-             </div>
-         )}
       </div>
     </div>
   );

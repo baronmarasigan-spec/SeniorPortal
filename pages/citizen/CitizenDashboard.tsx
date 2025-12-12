@@ -8,6 +8,8 @@ export const CitizenDashboard: React.FC = () => {
   const { currentUser } = useApp();
   const navigate = useNavigate();
 
+  const hasIssuedID = !!currentUser?.seniorIdNumber;
+
   const menuItems = [
     { 
       label: 'ID Issuance', 
@@ -15,7 +17,8 @@ export const CitizenDashboard: React.FC = () => {
       desc: 'Apply for a new ID',
       path: '/citizen/id?tab=new', 
       color: 'bg-blue-500',
-      shadow: 'shadow-blue-500/30'
+      shadow: 'shadow-blue-500/30',
+      show: !hasIssuedID // Hide if user already has an ID
     },
     { 
       label: 'ID Renewal / Replacement', 
@@ -23,7 +26,8 @@ export const CitizenDashboard: React.FC = () => {
       desc: 'Renew or replace lost ID',
       path: '/citizen/id?tab=renew', 
       color: 'bg-emerald-500',
-      shadow: 'shadow-emerald-500/30'
+      shadow: 'shadow-emerald-500/30',
+      show: hasIssuedID // Show only if user HAS an ID
     },
     { 
       label: 'Benefits', 
@@ -31,7 +35,8 @@ export const CitizenDashboard: React.FC = () => {
       desc: 'View pensions & cash gifts',
       path: '/citizen/benefits', 
       color: 'bg-orange-500',
-      shadow: 'shadow-orange-500/30'
+      shadow: 'shadow-orange-500/30',
+      show: true
     },
     { 
       label: 'Complaints and Feedback', 
@@ -39,7 +44,8 @@ export const CitizenDashboard: React.FC = () => {
       desc: 'Submit concerns to OSCA',
       path: '/citizen/complaints', 
       color: 'bg-red-500',
-      shadow: 'shadow-red-500/30'
+      shadow: 'shadow-red-500/30',
+      show: true
     },
     { 
       label: 'My Profile', 
@@ -47,7 +53,8 @@ export const CitizenDashboard: React.FC = () => {
       desc: 'Manage personal details',
       path: '/citizen/profile', 
       color: 'bg-purple-500',
-      shadow: 'shadow-purple-500/30'
+      shadow: 'shadow-purple-500/30',
+      show: true
     },
   ];
 
@@ -63,7 +70,7 @@ export const CitizenDashboard: React.FC = () => {
 
       {/* Big Icon Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {menuItems.map((item, index) => (
+        {menuItems.filter(item => item.show).map((item, index) => (
             <button 
                 key={index}
                 onClick={() => navigate(item.path)}

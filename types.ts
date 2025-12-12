@@ -1,4 +1,5 @@
 
+
 export enum Role {
   CITIZEN = 'CITIZEN',
   ADMIN = 'ADMIN',
@@ -75,9 +76,19 @@ export interface RegistryRecord {
   firstName: string;
   middleName?: string;
   lastName: string;
+  suffix?: string;
+  citizenship?: string;
   birthDate: string;
+  birthPlace?: string; // New field for auto-fetch
   sex?: string;
   civilStatus?: string;
-  address?: string;
+  // Address Breakdown
+  province?: string;
+  city?: string;
+  district?: string;
+  barangay?: string;
+  street?: string;
+  houseNo?: string;
+  address?: string; // Full string for fallback display
   isRegistered: boolean; // true if they already have a Senior Connect account
 }

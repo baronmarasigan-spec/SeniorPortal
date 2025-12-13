@@ -1,5 +1,3 @@
-
-
 import { Application, ApplicationStatus, ApplicationType, Complaint, RegistryRecord, Role, User } from '../types';
 
 export const INITIAL_USERS: User[] = [
@@ -9,6 +7,9 @@ export const INITIAL_USERS: User[] = [
     role: Role.CITIZEN,
     email: 'juan@email.com',
     birthDate: '1955-03-15',
+    birthPlace: 'San Juan City',
+    sex: 'Male',
+    civilStatus: 'Married',
     address: '155 F. Blumentritt, San Juan',
     seniorIdNumber: 'SC-2024-DUMMY',
     seniorIdIssueDate: '2024-01-15',
@@ -17,7 +18,14 @@ export const INITIAL_USERS: User[] = [
     contactNumber: '0917 000 0000',
     emergencyContact: 'Maria Dela Cruz - 0917 111 1111',
     username: 'juan',
-    password: 'password123'
+    password: 'password123',
+    livingArrangement: 'Owned',
+    isPensioner: true,
+    pensionAmount: '5,000',
+    pensionSource: 'SSS',
+    hasIllness: true,
+    illnessDetails: 'Hypertension',
+    bloodType: 'O+'
   },
   {
     id: 'u_no_id',
@@ -25,13 +33,19 @@ export const INITIAL_USERS: User[] = [
     role: Role.CITIZEN,
     email: 'pedro@email.com',
     birthDate: '1960-01-01',
+    birthPlace: 'Quezon City',
+    sex: 'Male',
+    civilStatus: 'Widowed',
     address: 'Sample Address, San Juan City',
     seniorIdNumber: undefined, // No ID Issued
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Pedro',
     contactNumber: '0918 222 2222',
     emergencyContact: 'Pedro Jr. - 0918 333 3333',
     username: 'pedro',
-    password: 'password123'
+    password: 'password123',
+    livingArrangement: 'Living with Relatives',
+    isPensioner: false,
+    hasIllness: false
   },
   {
     id: 'u_new_applicant',
@@ -39,10 +53,17 @@ export const INITIAL_USERS: User[] = [
     role: Role.CITIZEN,
     email: 'maria@example.com',
     birthDate: '1963-05-01',
+    birthPlace: 'Manila',
+    sex: 'Female',
+    civilStatus: 'Single',
     address: 'Brgy. Corazon de Jesus, San Juan',
     seniorIdNumber: undefined, // Not yet issued
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria',
     contactNumber: '0919 123 4567',
+    livingArrangement: 'Rent',
+    isPensioner: false,
+    hasIllness: true,
+    illnessDetails: 'Arthritis'
   },
   {
     id: 'u_renew_applicant',
@@ -50,12 +71,18 @@ export const INITIAL_USERS: User[] = [
     role: Role.CITIZEN,
     email: 'ibarra@example.com',
     birthDate: '1950-12-30',
+    birthPlace: 'San Juan City',
+    sex: 'Male',
+    civilStatus: 'Widowed',
     address: 'Brgy. Greenhills, San Juan',
     seniorIdNumber: 'SC-2018-009', // Expiring ID
     seniorIdIssueDate: '2018-11-01',
     seniorIdExpiryDate: '2021-11-01', // Expired
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Crisostomo',
     contactNumber: '0920 987 6543',
+    isPensioner: true,
+    pensionAmount: '12,000',
+    pensionSource: 'GSIS'
   },
   {
     id: 'u_replace_applicant',
@@ -63,12 +90,15 @@ export const INITIAL_USERS: User[] = [
     role: Role.CITIZEN,
     email: 'elias@example.com',
     birthDate: '1958-06-19',
+    sex: 'Male',
+    civilStatus: 'Married',
     address: 'Brgy. West Crame, San Juan',
     seniorIdNumber: 'SC-2020-555', // Lost ID
     seniorIdIssueDate: '2020-05-15',
     seniorIdExpiryDate: '2023-05-15',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elias',
     contactNumber: '0921 555 5555',
+    isPensioner: false
   },
   {
     id: 'u1',
@@ -84,7 +114,13 @@ export const INITIAL_USERS: User[] = [
     contactNumber: '0917 123 4567',
     emergencyContact: 'Alexis Stewart - 0918 999 8888',
     username: 'martha',
-    password: 'password123'
+    password: 'password123',
+    sex: 'Female',
+    civilStatus: 'Widowed',
+    isPensioner: true,
+    pensionAmount: '150,000 (Annual)',
+    pensionSource: 'Investments',
+    hasIllness: false
   },
   {
     id: 'u2',
@@ -97,7 +133,14 @@ export const INITIAL_USERS: User[] = [
     contactNumber: '0922 555 1234',
     emergencyContact: 'Jean Leckie - 0917 111 2222',
     username: 'arthur',
-    password: 'password123'
+    password: 'password123',
+    sex: 'Male',
+    civilStatus: 'Married',
+    isPensioner: true,
+    pensionAmount: '8,000',
+    pensionSource: 'SSS',
+    hasIllness: true,
+    illnessDetails: 'Diabetes'
   },
   {
     id: 'a1',
@@ -194,6 +237,7 @@ export const INITIAL_APPLICATIONS: Application[] = [
     date: '2023-10-26',
     status: ApplicationStatus.APPROVED,
     description: 'New senior citizen registration.',
+    documents: ['BirthCert.pdf', 'ValidID_Passport.jpg']
   },
   {
     id: 'app3',
@@ -212,6 +256,16 @@ export const INITIAL_APPLICATIONS: Application[] = [
     date: '2023-10-27',
     status: ApplicationStatus.PENDING,
     description: 'PhilHealth Member Data Record update.',
+  },
+  // New Dummy Data to show "For Approval" in Masterlist Benefits Column
+  {
+    id: 'app_benefit_pending_dummy',
+    userId: 'u_dummy', // Juan Dela Cruz
+    userName: 'Juan Dela Cruz',
+    type: ApplicationType.BENEFIT_CASH,
+    date: '2023-11-05',
+    status: ApplicationStatus.PENDING,
+    description: 'Application for Social Pension.',
   }
 ];
 

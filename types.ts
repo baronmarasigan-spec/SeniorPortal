@@ -38,6 +38,18 @@ export interface User {
   emergencyContact?: string;
   username?: string; // For demo/testing display
   password?: string; // For demo/testing display
+  
+  // Extended Profile Fields
+  sex?: string;
+  civilStatus?: string;
+  birthPlace?: string;
+  livingArrangement?: string;
+  isPensioner?: boolean;
+  pensionAmount?: string;
+  pensionSource?: string;
+  hasIllness?: boolean;
+  illnessDetails?: string;
+  bloodType?: string;
 }
 
 export interface Application {

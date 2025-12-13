@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -11,11 +10,13 @@ import { Layout } from './components/Layout';
 import { Role } from './types';
 
 // Admin Pages
-import { AdminReports } from './pages/admin/AdminReports';
+import { AdminDashboard } from './pages/admin/AdminDashboard'; // Switched to Dashboard
 import { AdminRegistered } from './pages/admin/AdminRegistered';
 import { AdminIssuance } from './pages/admin/AdminIssuance';
 import { AdminBenefits } from './pages/admin/AdminBenefits';
 import { AdminPhilHealth } from './pages/admin/AdminPhilHealth';
+import { Masterlist } from './pages/admin/Masterlist';
+import { LcrPwdDashboard } from './pages/admin/LcrPwdDashboard';
 
 // Citizen Pages
 import { CitizenDashboard } from './pages/citizen/CitizenDashboard';
@@ -33,7 +34,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole?: Role }
   }
 
   if (allowedRole && currentUser.role !== allowedRole) {
-    if (currentUser.role === Role.ADMIN) return <Navigate to="/admin/reports" replace />;
+    if (currentUser.role === Role.ADMIN) return <Navigate to="/admin/dashboard" replace />;
     return <Navigate to="/citizen/dashboard" replace />;
   }
 
@@ -44,7 +45,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole?: Role }
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useApp();
   if (currentUser) {
-    if (currentUser.role === Role.ADMIN) return <Navigate to="/admin/reports" replace />;
+    if (currentUser.role === Role.ADMIN) return <Navigate to="/admin/dashboard" replace />;
     return <Navigate to="/citizen/dashboard" replace />;
   }
   return <>{children}</>;
@@ -58,7 +59,9 @@ const AppContent: React.FC = () => {
       <Route path="/contact" element={<PublicRoute><ContactUs /></PublicRoute>} />
       
       {/* Admin Routes */}
-      <Route path="/admin/reports" element={<ProtectedRoute allowedRole={Role.ADMIN}><AdminReports /></ProtectedRoute>} />
+      <Route path="/admin/dashboard" element={<ProtectedRoute allowedRole={Role.ADMIN}><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/masterlist" element={<ProtectedRoute allowedRole={Role.ADMIN}><Masterlist /></ProtectedRoute>} />
+      <Route path="/admin/registry" element={<ProtectedRoute allowedRole={Role.ADMIN}><LcrPwdDashboard /></ProtectedRoute>} />
       
       {/* Registered Menu Routes */}
       <Route path="/admin/registered/:tab" element={<ProtectedRoute allowedRole={Role.ADMIN}><AdminRegistered /></ProtectedRoute>} />
@@ -72,8 +75,8 @@ const AppContent: React.FC = () => {
       {/* PhilHealth */}
       <Route path="/admin/philhealth" element={<ProtectedRoute allowedRole={Role.ADMIN}><AdminPhilHealth /></ProtectedRoute>} />
       
-      {/* Old Dashboard Redirect */}
-      <Route path="/admin/dashboard" element={<Navigate to="/admin/reports" replace />} />
+      {/* Redirect old reports route for safety */}
+      <Route path="/admin/reports" element={<Navigate to="/admin/dashboard" replace />} />
       
       {/* Citizen Routes */}
       <Route path="/citizen/dashboard" element={<ProtectedRoute allowedRole={Role.CITIZEN}><CitizenDashboard /></ProtectedRoute>} />

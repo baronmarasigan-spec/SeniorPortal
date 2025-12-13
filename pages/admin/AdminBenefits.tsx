@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
@@ -68,64 +67,7 @@ export const AdminBenefits: React.FC = () => {
     );
   }
 
-  // 2. MASTERLIST (APPROVED)
-  if (tab === 'masterlist') {
-    const approved = applications.filter(a => 
-        isBenefitType(a.type) && 
-        (a.status === ApplicationStatus.APPROVED || a.status === ApplicationStatus.ISSUED) &&
-        a.userName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    return (
-      <div className="space-y-6">
-        <header>
-          <h1 className="text-3xl font-bold text-slate-800">Approved Benefits</h1>
-          <p className="text-slate-500">List of approved and claimed benefits.</p>
-        </header>
-        
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-4 border-b border-slate-100">
-             <div className="relative max-w-md">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-               <input 
-                 type="text"
-                 placeholder="Search beneficiary..."
-                 className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all"
-                 value={searchTerm}
-                 onChange={(e) => setSearchTerm(e.target.value)}
-               />
-             </div>
-          </div>
-          <table className="w-full text-left">
-              <thead>
-                <tr className="bg-slate-50 text-slate-500 text-sm">
-                  <th className="p-4 font-semibold">Beneficiary</th>
-                  <th className="p-4 font-semibold">Benefit Type</th>
-                  <th className="p-4 font-semibold">Date Approved</th>
-                  <th className="p-4 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {approved.map((app) => (
-                  <tr key={app.id} className="hover:bg-slate-50/50">
-                    <td className="p-4 font-bold text-slate-800">{app.userName}</td>
-                    <td className="p-4 text-sm text-slate-600">{app.type}</td>
-                    <td className="p-4 text-sm text-slate-600">{app.date}</td>
-                    <td className="p-4">
-                        <span className={`text-xs px-2 py-1 rounded font-bold ${app.status === 'Issued' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {app.status}
-                        </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-        </div>
-      </div>
-    );
-  }
-
-  // 3. DISAPPROVED
+  // 2. DISAPPROVED
   if (tab === 'disapproved') {
     const rejected = applications.filter(a => isBenefitType(a.type) && a.status === ApplicationStatus.REJECTED);
 

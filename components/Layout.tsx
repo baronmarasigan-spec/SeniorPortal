@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Role } from '../types';
@@ -13,8 +12,10 @@ import {
   CreditCard,
   HeartHandshake,
   Stethoscope,
-  BarChart3,
-  Circle
+  LayoutDashboard,
+  Circle,
+  Users,
+  Database
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -69,11 +70,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Sidebar State for Expanded Groups
+  // Sidebar State for Expanded Groups - Set to false by default
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    registered: true,
-    id: true,
-    benefits: true,
+    registration: false,
+    id: false,
+    benefits: false,
   });
 
   const toggleGroup = (group: string) => {
@@ -179,22 +180,56 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <div className="flex-1 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
             
-            {/* 1. Registered Menu */}
+            {/* 1. Dashboard (Renamed from Reports) */}
+            <div className="mb-1">
+                <button
+                onClick={() => handleNavigate('/admin/dashboard')}
+                className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-200 ${
+                    currentPath === '/admin/dashboard' ? 'bg-primary-50 text-primary-600 font-bold' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+                >
+                <LayoutDashboard size={20} />
+                <span className="text-left">Dashboard</span>
+                </button>
+            </div>
+
+            {/* 2. Masterlist */}
+            <div className="mb-1">
+                <button
+                onClick={() => handleNavigate('/admin/masterlist')}
+                className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-200 ${
+                    currentPath === '/admin/masterlist' ? 'bg-primary-50 text-primary-600 font-bold' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+                >
+                <Users size={20} />
+                <span className="text-left">Masterlist</span>
+                </button>
+            </div>
+
+            {/* 3. LCR/PWD Registry */}
+            <div className="mb-1">
+                <button
+                onClick={() => handleNavigate('/admin/registry')}
+                className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-200 ${
+                    currentPath === '/admin/registry' ? 'bg-primary-50 text-primary-600 font-bold' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+                >
+                <Database size={20} />
+                <span className="text-left">LCR/PWD Registry</span>
+                </button>
+            </div>
+
+            {/* 4. Registration Menu */}
             <MenuGroup 
                 icon={UserCheck} 
-                label="Registered" 
-                isOpen={expandedGroups.registered} 
-                onClick={() => toggleGroup('registered')}
+                label="Registration" 
+                isOpen={expandedGroups.registration} 
+                onClick={() => toggleGroup('registration')}
             >
                 <SubMenuItem 
                     label="For Approval" 
                     active={currentPath === '/admin/registered/approval'} 
                     onClick={() => handleNavigate('/admin/registered/approval')} 
-                />
-                <SubMenuItem 
-                    label="Masterlist (Approved)" 
-                    active={currentPath === '/admin/registered/masterlist'} 
-                    onClick={() => handleNavigate('/admin/registered/masterlist')} 
                 />
                 <SubMenuItem 
                     label="List of Disapproved" 
@@ -203,7 +238,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 />
             </MenuGroup>
 
-            {/* 2. ID Issuance Menu */}
+            {/* 5. ID Issuance Menu */}
             <MenuGroup 
                 icon={CreditCard} 
                 label="ID Issuance" 
@@ -216,18 +251,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     onClick={() => handleNavigate('/admin/id/approval')} 
                 />
                 <SubMenuItem 
-                    label="Masterlist (Approved)" 
-                    active={currentPath === '/admin/id/masterlist'} 
-                    onClick={() => handleNavigate('/admin/id/masterlist')} 
-                />
-                <SubMenuItem 
                     label="List of Disapproved" 
                     active={currentPath === '/admin/id/disapproved'} 
                     onClick={() => handleNavigate('/admin/id/disapproved')} 
                 />
             </MenuGroup>
 
-            {/* 3. Benefits Menu */}
+            {/* 6. Benefits Menu */}
             <MenuGroup 
                 icon={HeartHandshake} 
                 label="Benefits" 
@@ -240,18 +270,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     onClick={() => handleNavigate('/admin/benefits/approval')} 
                 />
                 <SubMenuItem 
-                    label="Masterlist (Approved)" 
-                    active={currentPath === '/admin/benefits/masterlist'} 
-                    onClick={() => handleNavigate('/admin/benefits/masterlist')} 
-                />
-                <SubMenuItem 
                     label="List of Disapproved" 
                     active={currentPath === '/admin/benefits/disapproved'} 
                     onClick={() => handleNavigate('/admin/benefits/disapproved')} 
                 />
             </MenuGroup>
 
-            {/* 4. PhilHealth */}
+            {/* 7. PhilHealth */}
             <div className="mb-1">
                 <button
                 onClick={() => handleNavigate('/admin/philhealth')}
@@ -261,19 +286,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                 <Stethoscope size={20} />
                 <span className="text-left">Philhealth Facilitation</span>
-                </button>
-            </div>
-
-            {/* 5. Reports */}
-            <div className="mb-1">
-                <button
-                onClick={() => handleNavigate('/admin/reports')}
-                className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-200 ${
-                    currentPath === '/admin/reports' ? 'bg-primary-50 text-primary-600 font-bold' : 'text-slate-600 hover:bg-slate-50'
-                }`}
-                >
-                <BarChart3 size={20} />
-                <span className="text-left">Reports</span>
                 </button>
             </div>
 

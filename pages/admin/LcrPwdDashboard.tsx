@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Search, UserCheck, Users, Filter, CheckCircle, XCircle } from 'lucide-react';
+import { Search, UserCheck, Users, Filter, CheckCircle, XCircle, Database, Eye, X, MapPin, Calendar, User, Flag, Briefcase } from 'lucide-react';
+import { RegistryRecord } from '../../types';
 
 export const LcrPwdDashboard: React.FC = () => {
   const { registryRecords } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'ALL' | 'LCR' | 'PWD'>('ALL');
+  const [selectedRecord, setSelectedRecord] = useState<RegistryRecord | null>(null);
 
   const filteredRecords = registryRecords.filter(record => {
     const matchesSearch = 
@@ -19,12 +20,158 @@ export const LcrPwdDashboard: React.FC = () => {
     return matchesSearch && matchesType;
   });
 
+  const ViewRecordModal = ({ record, onClose }: { record: RegistryRecord, onClose: () => void }) => {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+             <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl relative z-20 flex flex-col overflow-hidden animate-scale-up">
+                 {/* Header */}
+                 <div className="bg-slate-900 p-6 flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                         <div className={`p-2 rounded-lg ${record.type === 'LCR' ? 'bg-primary-500 text-white' : 'bg-blue-500 text-white'}`}>
+                             <Database size={24} />
+                         </div>
+                         <div>
+                             <h2 className="text-xl font-bold text-white leading-none">Record Details</h2>
+                             <p className="text-slate-400 text-sm mt-1 font-mono">{record.id}</p>
+                         </div>
+                     </div>
+                     <button onClick={onClose} className="p-2 bg-white/10 text-white hover:bg-white/20 rounded-full transition-colors">
+                         <X size={20} />
+                     </button>
+                 </div>
+
+                 <div className="p-8 overflow-y-auto custom-scrollbar max-h-[70vh]">
+                     {/* Badge Status */}
+                     <div className="flex justify-end mb-6">
+                        {record.isRegistered ? (
+                            <span className="flex items-center gap-1.5 text-sm font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full border border-emerald-200">
+                                <CheckCircle size={16} /> Already Registered in System
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1.5 text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                                <XCircle size={16} /> Unregistered
+                            </span>
+                        )}
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                         
+                         {/* Personal Information */}
+                         <div className="space-y-4">
+                             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2 mb-2 flex items-center gap-2">
+                                <User size={16} /> Personal Information
+                             </h3>
+                             <div className="space-y-4">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500">Full Name</label>
+                                    <p className="font-bold text-slate-800 text-lg">
+                                        {record.firstName} {record.middleName} {record.lastName} {record.suffix}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                                        <Calendar size={12} /> Birth Date
+                                    </label>
+                                    <p className="font-medium text-slate-800">{record.birthDate}</p>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                                        <MapPin size={12} /> Birth Place
+                                    </label>
+                                    <p className="font-medium text-slate-800">{record.birthPlace || 'Not Specified'}</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500">Sex</label>
+                                        <p className="font-medium text-slate-800">{record.sex || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500">Civil Status</label>
+                                        <p className="font-medium text-slate-800">{record.civilStatus || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                                        <Flag size={12} /> Citizenship
+                                    </label>
+                                    <p className="font-medium text-slate-800">{record.citizenship || 'Filipino'}</p>
+                                </div>
+                             </div>
+                         </div>
+
+                         {/* Address Information */}
+                         <div className="space-y-4">
+                             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2 mb-2 flex items-center gap-2">
+                                <MapPin size={16} /> Residential Address
+                             </h3>
+                             <div className="space-y-4">
+                                <div className="bg-slate-50 p-4 rounded-xl space-y-3 border border-slate-100">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-400">House No.</label>
+                                            <p className="font-medium text-slate-800">{record.houseNo || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-400">Street</label>
+                                            <p className="font-medium text-slate-800">{record.street || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400">Barangay</label>
+                                        <p className="font-medium text-slate-800">{record.barangay || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400">District</label>
+                                        <p className="font-medium text-slate-800">{record.district || 'N/A'}</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-400">City</label>
+                                            <p className="font-medium text-slate-800">{record.city || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-400">Province</label>
+                                            <p className="font-medium text-slate-800">{record.province || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                             </div>
+                             
+                             {/* Meta Info */}
+                             <div className="mt-4 pt-4 border-t border-slate-100">
+                                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <Briefcase size={16} /> Record Source
+                                 </h3>
+                                 <div className="flex items-center gap-2">
+                                     <span className={`px-3 py-1 rounded-lg text-sm font-bold ${record.type === 'LCR' ? 'bg-primary-50 text-primary-700' : 'bg-blue-50 text-blue-700'}`}>
+                                        {record.type === 'LCR' ? 'Local Civil Registry' : 'PWD Registry'}
+                                     </span>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                 {/* Footer */}
+                 <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
+                     <button onClick={onClose} className="px-6 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors">
+                         Close
+                     </button>
+                 </div>
+             </div>
+        </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
+      {selectedRecord && <ViewRecordModal record={selectedRecord} onClose={() => setSelectedRecord(null)} />}
+
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">Agency Portal</h1>
-          <p className="text-slate-500">Masterlist Verification for LCR and PWD Records</p>
+          <h1 className="text-3xl font-bold text-slate-800">LCR / PWD Registry Masterlist</h1>
+          <p className="text-slate-500">Verified masterlist of Local Civil Registry and PWD records for cross-referencing.</p>
         </div>
         <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
             <button 
@@ -52,7 +199,7 @@ export const LcrPwdDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
               <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
-                  <Users size={24} />
+                  <Database size={24} />
               </div>
               <div>
                   <p className="text-slate-500 text-sm font-medium">Total Records</p>
@@ -130,7 +277,12 @@ export const LcrPwdDashboard: React.FC = () => {
                       )}
                   </td>
                   <td className="p-4 text-right">
-                    <button className="text-primary-600 hover:text-primary-700 font-medium text-sm">View Details</button>
+                    <button 
+                        onClick={() => setSelectedRecord(record)}
+                        className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center justify-end gap-1 hover:underline w-full"
+                    >
+                        <Eye size={16} /> View Details
+                    </button>
                   </td>
                 </tr>
               ))}

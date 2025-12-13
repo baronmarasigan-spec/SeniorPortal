@@ -52,10 +52,6 @@ const ImageCollage = ({ image1, image2, image3 }: { image1: string, image2: stri
     <div className="absolute bottom-0 left-10 w-56 h-48 bg-white p-2 rounded-2xl shadow-xl z-30 transform -rotate-1 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '4s' }}>
       <img src={image3} alt="Help" className="w-full h-full object-cover rounded-xl" />
     </div>
-    
-    {/* Decorative Elements */}
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary-500 rounded-full opacity-5 blur-3xl -z-10 animate-pulse-slow"></div>
-    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-500 rounded-full opacity-5 blur-xl -z-10"></div>
   </div>
 );
 
@@ -312,13 +308,13 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-12">
-            <div className="bg-white p-2 rounded-2xl shadow-xl transform hover:-translate-y-2 transition-transform duration-300">
+            <div className="bg-white p-2 rounded-2xl shadow-xl transform hover:-translate-y-2 transition-transform duration-300 animate-scale-up" style={{ animationDelay: '600ms' }}>
               <img src="https://picsum.photos/seed/senior1/400/250" className="rounded-xl w-full h-48 object-cover" alt="Seniors gathering" />
             </div>
-            <div className="bg-white p-2 rounded-2xl shadow-xl transform translate-y-4 hover:translate-y-2 transition-transform duration-300 md:block hidden">
+            <div className="bg-white p-2 rounded-2xl shadow-xl transform translate-y-4 hover:translate-y-2 transition-transform duration-300 md:block hidden animate-scale-up" style={{ animationDelay: '800ms' }}>
               <img src="https://picsum.photos/seed/senior2/400/250" className="rounded-xl w-full h-48 object-cover" alt="Medical assistance" />
             </div>
-            <div className="bg-white p-2 rounded-2xl shadow-xl transform hover:-translate-y-2 transition-transform duration-300 md:block hidden">
+            <div className="bg-white p-2 rounded-2xl shadow-xl transform hover:-translate-y-2 transition-transform duration-300 md:block hidden animate-scale-up" style={{ animationDelay: '1000ms' }}>
               <img src="https://picsum.photos/seed/senior3/400/250" className="rounded-xl w-full h-48 object-cover" alt="Community event" />
             </div>
           </div>
@@ -326,13 +322,9 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Senior Services */}
-      <section id="benefits" className="py-24 px-4 overflow-hidden scroll-mt-24">
+      <section id="benefits" className="py-24 px-4 overflow-hidden scroll-mt-24 bg-white">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16">
           <div className="flex-1 relative">
-             {/* Updated Background Elements to match Contact Us style */}
-             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none"></div>
-             <div className="absolute left-10 bottom-0 w-[300px] h-[300px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none" style={{ animationDelay: '1s' }}></div>
-             
              <div className="pl-12">
                 <ImageCollage 
                   image1="https://picsum.photos/seed/comm1/300/300"
@@ -370,19 +362,20 @@ export const LandingPage: React.FC = () => {
 
       {/* Contact Us Section (Inserted before footer) */}
       <section id="contact" className="py-20 px-4 bg-white relative overflow-hidden scroll-mt-24">
-         {/* Decorative Elements */}
-         <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none"></div>
-         <div className="absolute -left-20 bottom-0 w-[300px] h-[300px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none" style={{ animationDelay: '1s' }}></div>
-    
+         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute top-10 right-10 w-64 h-64 bg-primary-50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+            <div className="absolute bottom-10 left-10 w-64 h-64 bg-blue-50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
+         </div>
+
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
-             <div className="text-center mb-16">
+             <div className="text-center mb-16 animate-fade-in-up">
                  <h2 className="text-4xl font-bold text-primary-500 mb-4">Contact Us</h2>
                  <p className="text-slate-500 max-w-2xl mx-auto">We are here to assist you. Reach out to our dedicated Senior Citizen Affairs team for inquiries, support, or feedback.</p>
              </div>
 
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Contact Cards */}
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-6 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                     <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
                         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                             <User className="text-primary-500" /> Key Officials
@@ -452,7 +445,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 {/* Map Section */}
-                <div className="lg:col-span-2 space-y-4">
+                <div className="lg:col-span-2 space-y-4 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
                     <div className="bg-white p-3 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 h-full min-h-[500px] flex flex-col transform hover:-translate-y-1 transition-transform duration-300">
                         <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
                             <div>

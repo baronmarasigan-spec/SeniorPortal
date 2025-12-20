@@ -52,10 +52,6 @@ const ImageCollage = ({ image1, image2, image3 }: { image1: string, image2: stri
     <div className="absolute bottom-0 left-10 w-56 h-48 bg-white p-2 rounded-2xl shadow-xl z-30 transform -rotate-1 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '4s' }}>
       <img src={image3} alt="Help" className="w-full h-full object-cover rounded-xl" />
     </div>
-    
-    {/* Decorative Elements */}
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary-500 rounded-full opacity-5 blur-3xl -z-10 animate-pulse-slow"></div>
-    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-500 rounded-full opacity-5 blur-xl -z-10"></div>
   </div>
 );
 
@@ -326,13 +322,9 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Senior Services */}
-      <section id="benefits" className="py-24 px-4 overflow-hidden scroll-mt-24">
+      <section id="benefits" className="py-24 px-4 overflow-hidden scroll-mt-24 bg-white relative">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16">
           <div className="flex-1 relative">
-             {/* Updated Background Elements to match Contact Us style */}
-             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none"></div>
-             <div className="absolute left-10 bottom-0 w-[300px] h-[300px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none" style={{ animationDelay: '1s' }}></div>
-             
              <div className="pl-12">
                 <ImageCollage 
                   image1="https://picsum.photos/seed/comm1/300/300"
@@ -368,12 +360,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Contact Us Section (Inserted before footer) */}
+      {/* Contact Us Section */}
       <section id="contact" className="py-20 px-4 bg-white relative overflow-hidden scroll-mt-24">
-         {/* Decorative Elements */}
-         <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none"></div>
-         <div className="absolute -left-20 bottom-0 w-[300px] h-[300px] bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse-slow pointer-events-none" style={{ animationDelay: '1s' }}></div>
-    
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
              <div className="text-center mb-16">
                  <h2 className="text-4xl font-bold text-primary-500 mb-4">Contact Us</h2>
@@ -420,28 +408,22 @@ export const LandingPage: React.FC = () => {
                         </h2>
 
                         <div className="space-y-4">
-                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
-                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
-                                    <Mail size={24} />
-                                </div>
+                            <div className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-xl transition-colors">
+                                <Mail className="text-slate-400" size={20} />
                                 <div>
                                     <p className="text-xs text-slate-400 font-medium">Email Address</p>
                                     <p className="text-slate-700 font-medium">publicinfo@sanjuancity.gov.ph</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
-                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
-                                    <Phone size={24} />
-                                </div>
+                            <div className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-xl transition-colors">
+                                <Phone className="text-slate-400" size={20} />
                                 <div>
                                     <p className="text-xs text-slate-400 font-medium">Hotline</p>
                                     <p className="text-slate-700 font-medium">(02) 7729 0005</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-default">
-                                <div className="w-12 h-12 rounded-xl border-2 border-primary-500 text-primary-500 flex items-center justify-center shrink-0">
-                                    <Clock size={24} />
-                                </div>
+                            <div className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-xl transition-colors">
+                                <Clock className="text-slate-400" size={20} />
                                 <div>
                                     <p className="text-xs text-slate-400 font-medium">Office Hours</p>
                                     <p className="text-slate-700 font-medium">Mon - Fri, 8:00 AM - 5:00 PM</p>
@@ -503,7 +485,6 @@ export const LandingPage: React.FC = () => {
            </div>
            
            <div className="flex flex-col gap-4 text-slate-600 text-sm items-center md:items-start">
-               {/* Simplified Footer Links since comprehensive contact info is above */}
                <h4 className="font-bold text-slate-800 mb-1">Quick Links</h4>
                <button onClick={() => scrollToSection('home')} className="hover:text-primary-600 transition-colors">Home</button>
                <button onClick={() => scrollToSection('benefits')} className="hover:text-primary-600 transition-colors">Services</button>

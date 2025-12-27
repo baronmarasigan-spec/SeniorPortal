@@ -98,7 +98,7 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
     
     if (success) {
         if (username.includes('admin')) {
-          navigate('/admin/reports');
+          navigate('/admin/dashboard');
         } else {
           navigate('/citizen/dashboard');
         }
@@ -120,14 +120,12 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
         
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
-           {/* The background image specifically requested */}
            <div 
              className="absolute inset-0 bg-contain bg-center bg-no-repeat opacity-20 mix-blend-multiply"
              style={{
                backgroundImage: "url('https://dev2.phoenix.com.ph/wp-content/uploads/2025/12/Group-82.png')"
              }}
            ></div>
-           {/* White Overlay for text readability */}
            <div className="absolute inset-0 bg-white/90"></div>
         </div>
 
@@ -212,7 +210,6 @@ export const LandingPage: React.FC = () => {
   useEffect(() => {
     if (location.state && (location.state as any).openLogin) {
       setShowLogin(true);
-      // Clear state to prevent reopening on refresh
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -268,8 +265,9 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-between items-center h-full">
             <div className="flex gap-4 items-center text-sm font-medium text-slate-800 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/50 animate-fade-in-down" style={{ animationDelay: '200ms' }}>
-              <button onClick={() => scrollToSection('home')} className="hover:text-primary-600 transition-colors text-primary-600 font-bold">Home</button>
+              <button onClick={() => scrollToSection('home')} className="hover:text-primary-600 transition-colors">Home</button>
               <button onClick={() => navigate('/register')} className="hover:text-primary-600 transition-colors">Register</button>
+              <button onClick={() => scrollToSection('benefits')} className="hover:text-primary-600 transition-colors">Services</button>
               <button onClick={() => scrollToSection('contact')} className="hover:text-primary-600 transition-colors cursor-pointer">Contact Us</button>
             </div>
 
@@ -369,7 +367,6 @@ export const LandingPage: React.FC = () => {
              </div>
 
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Contact Cards */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
                         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
@@ -433,7 +430,6 @@ export const LandingPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Map Section */}
                 <div className="lg:col-span-2 space-y-4">
                     <div className="bg-white p-3 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 h-full min-h-[500px] flex flex-col transform hover:-translate-y-1 transition-transform duration-300">
                         <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
@@ -504,7 +500,6 @@ export const LandingPage: React.FC = () => {
            </div>
          </div>
 
-         {/* Subfooter Image */}
          <div className="w-full">
             <img 
                 src="https://www.phoenix.com.ph/wp-content/uploads/2025/12/subfooter.png" 

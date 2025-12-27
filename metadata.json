@@ -2,6 +2,7 @@
   "name": "Senior Citizen Management System (Phase 1) Deployed",
   "description": "A comprehensive Senior Citizen Management System designed for ease of use, facilitating registration, ID issuance, benefits, and administrative oversight.",
   "requestFramePermissions": [
-    "camera"
+    "camera",
+    "geolocation"
   ]
 }

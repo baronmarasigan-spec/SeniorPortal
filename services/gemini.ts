@@ -1,11 +1,11 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { Application, Complaint } from "../types";
 
-const apiKey = process.env.API_KEY || ''; // Ensure this is available in your env
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
 export const generateExecutiveSummary = async (applications: Application[], complaints: Complaint[]) => {
-  if (!apiKey) return "API Key missing. Cannot generate AI summary.";
+  if (!process.env.API_KEY) return "API Key missing. Cannot generate AI summary.";
 
   const dataContext = `
     Total Applications: ${applications.length}
@@ -15,9 +15,8 @@ export const generateExecutiveSummary = async (applications: Application[], comp
   `;
 
   try {
-    const model = ai.models;
-    const response = await model.generateContent({
-      model: 'gemini-2.5-flash',
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
       contents: `You are an AI assistant for a Senior Citizen Management System administrator. 
       Analyze the following data context and provide a brief, 2-sentence executive summary highlighting key areas requiring attention (e.g., bottlenecks, rising complaints).
       
@@ -25,7 +24,7 @@ export const generateExecutiveSummary = async (applications: Application[], comp
       ${dataContext}
       `,
     });
-    return response.text;
+    return response.text || "Summary analysis completed.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Unable to generate summary at this time.";
@@ -33,15 +32,14 @@ export const generateExecutiveSummary = async (applications: Application[], comp
 };
 
 export const analyzeComplaint = async (complaintDetails: string) => {
-    if (!apiKey) return "API Key missing.";
+    if (!process.env.API_KEY) return "API Key missing.";
     
     try {
-        const model = ai.models;
-        const response = await model.generateContent({
-            model: 'gemini-2.5-flash',
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
             contents: `Summarize this senior citizen complaint in 5 words or less for a quick status dashboard tag: "${complaintDetails}"`,
         });
-        return response.text;
+        return response.text || "Complaint analyzed.";
     } catch (error) {
         console.error("Gemini Error", error);
         return "Analysis failed";

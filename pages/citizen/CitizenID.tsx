@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ApplicationType, ApplicationStatus } from '../../types';
-import { Upload, FileCheck, Camera, X, CheckCircle, RefreshCw, AlertTriangle, Calendar, ShieldAlert, ArrowRight, MapPin, Phone, Mail } from 'lucide-react';
+import { Upload, FileCheck, Camera, X, CheckCircle, RefreshCw, AlertTriangle, Calendar, ShieldAlert, ArrowRight, MapPin, Phone, Mail, Navigation } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { IDCard } from '../../components/IDCard';
 
@@ -16,7 +16,6 @@ export const CitizenID: React.FC = () => {
   const [formMode, setFormMode] = useState<ApplicationType | null>(null);
 
   // Check if user already has an issued ID
-  // Logic: User has a seniorIdNumber assigned.
   const hasIssuedID = !!currentUser?.seniorIdNumber;
 
   // Form State
@@ -30,23 +29,21 @@ export const CitizenID: React.FC = () => {
     email: ''
   });
   
-  // Camera State
+  // Camera & Location State
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [permissionActive, setPermissionActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [cameraError, setCameraError] = useState('');
 
   // --- Expiration Logic ---
   const today = new Date();
-  
-  // Get Expiration Date from User Record (or null if not set)
   const expirationDateStr = currentUser?.seniorIdExpiryDate;
   const expirationDate = expirationDateStr ? new Date(expirationDateStr) : null;
   
-  // Calculate Renewal Eligibility (3 months before expiration)
-  // If no expiration date exists (but ID exists), we assume valid unless told otherwise or handle strictly.
-  // For safety, if no date is present, we disable renewal unless explicitly handled.
   let isEligibleForRenewal = false;
   let renewalStartDate: Date | null = null;
   let daysUntilExpiration = 0;
@@ -54,11 +51,9 @@ export const CitizenID: React.FC = () => {
   if (expirationDate) {
       renewalStartDate = new Date(expirationDate);
       renewalStartDate.setMonth(renewalStartDate.getMonth() - 3);
-
       isEligibleForRenewal = today >= renewalStartDate;
       daysUntilExpiration = Math.ceil((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   }
-  // -----------------------------------
 
   // Check for existing pending application
   const activeApplication = applications.find(
@@ -68,13 +63,11 @@ export const CitizenID: React.FC = () => {
   );
 
   useEffect(() => {
-    // Reset form when tab changes
     setFormMode(null);
     setFiles([]);
     setReason('');
   }, [activeTab]);
 
-  // Pre-fill contact data when entering renewal/replacement mode
   useEffect(() => {
     if (currentUser && (formMode === ApplicationType.ID_RENEWAL || formMode === ApplicationType.ID_REPLACEMENT)) {
         setContactData({
@@ -87,21 +80,52 @@ export const CitizenID: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      stopCamera(); // Cleanup on unmount
+      stopCamera();
     };
   }, []);
 
-  const startCamera = async () => {
-    setCameraError('');
-    setIsCameraOpen(true);
+  const handleStartPhotoFlow = () => {
+      setCameraError('');
+      setIsCameraOpen(true);
+      // Initiate camera and location immediately when the modal is opened
+      startMediaSession();
+  };
+
+  const startMediaSession = async () => {
+    // 1. Request Location (Geolocation)
+    setLocationLoading(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setLocationLoading(false);
+        },
+        (error) => {
+          console.warn("Location access denied or failed", error);
+          setLocationLoading(false);
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    } else {
+      setLocationLoading(false);
+    }
+
+    // 2. Request Camera
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } 
+      });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        setPermissionActive(true);
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
-      setCameraError('Unable to access camera. Please check permissions.');
+      setCameraError('Unable to access camera. Please check permissions in your browser settings.');
+      setPermissionActive(false);
     }
   };
 
@@ -113,6 +137,7 @@ export const CitizenID: React.FC = () => {
       videoRef.current.srcObject = null;
     }
     setIsCameraOpen(false);
+    setPermissionActive(false);
   };
 
   const capturePhoto = () => {
@@ -140,16 +165,18 @@ export const CitizenID: React.FC = () => {
   const handleSubmit = () => {
     if (!currentUser) return;
     
-    // Determine the type based on context
     let type = ApplicationType.ID_NEW;
     if (formMode) type = formMode;
     else if (activeTab === 'new') type = ApplicationType.ID_NEW;
 
-    // Build description including updated details if applicable
     let description = reason || `${type} Application`;
     
     if (type === ApplicationType.ID_RENEWAL || type === ApplicationType.ID_REPLACEMENT) {
         description += `\n\n[Updated Details]\nAddress: ${contactData.address}\nMobile: ${contactData.contactNumber}\nEmail: ${contactData.email}`;
+    }
+
+    if (location) {
+        description += `\n\n[Verified Location]\nLat: ${location.lat.toFixed(6)}, Lng: ${location.lng.toFixed(6)}`;
     }
 
     addApplication({
@@ -180,13 +207,9 @@ export const CitizenID: React.FC = () => {
       )
   }
 
-  // --- RENDER CONDITION ---
-  // If user has an issued ID, always show the dashboard view (even if they clicked 'New ID')
-  // unless they have explicitly entered a Form Mode (Renewal/Replacement form).
   const showIdDashboard = (hasIssuedID && !formMode) || (activeTab === 'renew' && !formMode);
 
   if (showIdDashboard) {
-      // If user is here via 'renew' tab but has NO ID, show appropriate message
       if (!hasIssuedID) {
            return (
               <div className="max-w-xl mx-auto text-center space-y-6 pt-10 animate-fade-in">
@@ -216,7 +239,6 @@ export const CitizenID: React.FC = () => {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* ID Status Card */}
                 <div className="space-y-6">
                     <div className="bg-slate-100 p-8 rounded-3xl flex items-center justify-center border border-slate-200">
                          <div className="transform scale-90 md:scale-100 transition-transform">
@@ -225,7 +247,6 @@ export const CitizenID: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Info & Actions */}
                 <div className="flex flex-col justify-center space-y-6">
                     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                         <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -294,7 +315,6 @@ export const CitizenID: React.FC = () => {
       );
   }
 
-  // --- RENDER: APPLICATION FORM (New, Renewal, or Replacement) ---
   const currentMode = formMode || (activeTab === 'new' ? ApplicationType.ID_NEW : null);
   
   if (!currentMode) return null;
@@ -350,7 +370,6 @@ export const CitizenID: React.FC = () => {
       </header>
 
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        {/* Header Bar */}
         <div className="bg-primary-50 p-6 border-b border-primary-100">
             <h2 className="font-bold text-primary-800 text-lg flex items-center gap-2">
                 {getTitle()}
@@ -358,10 +377,7 @@ export const CitizenID: React.FC = () => {
             <p className="text-primary-600 text-sm mt-1">Please ensure all details and documents are correct.</p>
         </div>
 
-        {/* Form Content */}
         <div className="p-8 space-y-8">
-          
-          {/* Mandatory Contact Update for Renewal/Replacement */}
           {isRenewalOrReplacement && (
               <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 space-y-4">
                   <h3 className="font-bold text-blue-900 flex items-center gap-2">
@@ -410,7 +426,6 @@ export const CitizenID: React.FC = () => {
               </div>
           )}
 
-          {/* Requirements List */}
           <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
              <h3 className="font-bold text-slate-800 mb-3">Requirements</h3>
              <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-600">
@@ -422,14 +437,12 @@ export const CitizenID: React.FC = () => {
              </ul>
           </div>
 
-          {/* Photo / Document Section */}
           <div className="space-y-4">
               <label className="block text-sm font-bold text-slate-700">
                   {currentMode === ApplicationType.ID_REPLACEMENT ? 'Upload Affidavit & Photo' : 'Upload Documents & Photo'} <span className="text-red-500">*</span>
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Option 1: Upload */}
                   <div className="relative border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:bg-slate-50 hover:border-primary-300 transition-all cursor-pointer group h-48">
                       <input 
                         type="file" 
@@ -445,9 +458,8 @@ export const CitizenID: React.FC = () => {
                       <p className="text-xs text-slate-400 mt-1">Select from device</p>
                   </div>
 
-                  {/* Option 2: Camera */}
                   <button 
-                    onClick={startCamera}
+                    onClick={handleStartPhotoFlow}
                     className="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:bg-slate-50 hover:border-primary-300 transition-all cursor-pointer group h-48"
                   >
                       <div className="w-12 h-12 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -458,31 +470,48 @@ export const CitizenID: React.FC = () => {
                   </button>
               </div>
 
-              {/* Camera Modal / Area */}
               {isCameraOpen && (
                   <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4">
-                      <div className="w-full max-w-2xl bg-black rounded-3xl overflow-hidden relative flex items-center justify-center">
+                      <div className="w-full max-w-2xl bg-black rounded-3xl overflow-hidden relative flex items-center justify-center min-h-[400px]">
+                          {/* We remove the intermediate 'requesting' UI step to feel like it's auto-defaulting */}
+                          
                           <video 
                              ref={videoRef} 
                              autoPlay 
                              playsInline 
-                             className="w-full h-auto bg-black relative z-10 max-h-[70vh] object-cover"
+                             className={`w-full h-auto bg-black relative z-10 max-h-[70vh] object-cover ${permissionActive ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}
                           />
                           
-                          {/* Face Frame Overlay */}
-                          <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-hidden">
-                              <div className="w-64 h-80 sm:w-72 sm:h-96 border-4 border-white/80 border-dashed rounded-[50%] shadow-[0_0_0_2000px_rgba(0,0,0,0.7)] relative">
-                                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-white/50 opacity-50">
-                                      <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white"></div>
-                                      <div className="absolute left-1/2 top-0 h-full w-[1px] bg-white"></div>
+                          {permissionActive && (
+                              <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-hidden">
+                                  <div className="w-64 h-80 sm:w-72 sm:h-96 border-4 border-white/80 border-dashed rounded-[50%] shadow-[0_0_0_2000px_rgba(0,0,0,0.7)] relative">
+                                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-white/50 opacity-50">
+                                          <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white"></div>
+                                          <div className="absolute left-1/2 top-0 h-full w-[1px] bg-white"></div>
+                                      </div>
+                                  </div>
+                                  <div className="absolute top-8 left-0 right-0 text-center z-30 flex flex-col items-center gap-2">
+                                      <span className="bg-black/40 backdrop-blur-md text-white/90 px-4 py-1.5 rounded-full text-sm font-medium border border-white/10">
+                                          Position your face within the frame
+                                      </span>
+                                      
+                                      {/* Geolocation Badge */}
+                                      {locationLoading ? (
+                                          <span className="bg-blue-500/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 animate-pulse">
+                                              <Navigation size={10} className="animate-spin" /> Verifying Location...
+                                          </span>
+                                      ) : location ? (
+                                          <span className="bg-emerald-500/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-emerald-400">
+                                              <CheckCircle size={10} /> Location Verified ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})
+                                          </span>
+                                      ) : (
+                                          <span className="bg-red-500/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5">
+                                              <AlertTriangle size={10} /> Waiting for Location
+                                          </span>
+                                      )}
                                   </div>
                               </div>
-                              <div className="absolute top-8 left-0 right-0 text-center z-30">
-                                  <span className="bg-black/40 backdrop-blur-md text-white/90 px-4 py-1.5 rounded-full text-sm font-medium border border-white/10">
-                                      Position your face within the frame
-                                  </span>
-                              </div>
-                          </div>
+                          )}
 
                           <canvas ref={canvasRef} className="hidden" />
                           
@@ -494,27 +523,33 @@ export const CitizenID: React.FC = () => {
                              >
                                 <X size={24} />
                              </button>
-                             <button 
-                               onClick={capturePhoto}
-                               className="p-1 rounded-full border-4 border-white/30 hover:scale-105 transition-transform"
-                             >
-                                <div className="p-5 bg-white rounded-full border-4 border-slate-900"></div>
-                             </button>
+                             {permissionActive && (
+                                <button 
+                                onClick={capturePhoto}
+                                className="p-1 rounded-full border-4 border-white/30 hover:scale-105 transition-transform"
+                                >
+                                    <div className="p-5 bg-white rounded-full border-4 border-slate-900"></div>
+                                </button>
+                             )}
                           </div>
 
                           {cameraError && (
-                              <div className="absolute top-4 left-4 right-4 p-4 bg-red-500/80 text-white rounded-xl text-center z-40">
-                                  {cameraError}
+                              <div className="absolute inset-0 flex flex-col items-center justify-center z-50 bg-slate-900 p-8 text-center space-y-4">
+                                  <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center">
+                                      <ShieldAlert size={32} />
+                                  </div>
+                                  <h3 className="text-white font-bold text-lg">Camera Access Required</h3>
+                                  <p className="text-slate-400 text-sm max-w-xs">{cameraError}</p>
+                                  <button onClick={stopCamera} className="px-6 py-2 bg-white rounded-xl font-bold text-slate-900">Go Back</button>
                               </div>
                           )}
                       </div>
                       <p className="text-white/60 mt-6 font-medium text-center text-sm max-w-md">
-                          Ensure there is good lighting and your face is fully visible inside the oval guide.
+                          Permissions for camera and location are requested automatically to verify your identity session.
                       </p>
                   </div>
               )}
 
-              {/* File List */}
               {files.length > 0 && (
                   <div className="space-y-2 mt-4 bg-white border border-slate-100 rounded-xl p-2">
                       {files.map((file, idx) => (

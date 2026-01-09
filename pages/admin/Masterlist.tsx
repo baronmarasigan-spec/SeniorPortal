@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Role, ApplicationType, ApplicationStatus, User } from '../../types';
-import { Search, Download, Printer, X } from 'lucide-react';
+import { Search, Download, Printer, X, ShieldCheck } from 'lucide-react';
 
 export const Masterlist: React.FC = () => {
   const { users, applications } = useApp();
@@ -73,6 +73,30 @@ export const Masterlist: React.FC = () => {
                </div>
 
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Account Credentials Card */}
+                  <div className="bg-white p-6 rounded-2xl border-2 border-primary-100 shadow-md space-y-5 animate-fade-in">
+                      <h4 className="font-black text-primary-600 border-b border-primary-50 pb-3 uppercase text-[10px] tracking-[0.2em] flex items-center gap-2">
+                        <ShieldCheck size={14} /> Account Credentials
+                      </h4>
+                      <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+                          <div>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Username</label>
+                              <p className="font-mono font-black text-primary-600 text-sm bg-primary-50 px-3 py-2 rounded-lg border border-primary-100">
+                                {user.username || 'Not Generated'}
+                              </p>
+                          </div>
+                          <div>
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Password</label>
+                              <p className="font-mono font-black text-slate-800 text-sm bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+                                {user.password || 'Not Generated'}
+                              </p>
+                          </div>
+                          <div className="col-span-2">
+                            <p className="text-[9px] text-slate-400 italic font-medium">* Provide these credentials to the citizen for portal access.</p>
+                          </div>
+                      </div>
+                  </div>
+
                   <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-5">
                       <h4 className="font-black text-slate-400 border-b border-slate-50 pb-3 uppercase text-[10px] tracking-[0.2em]">Personal Details</h4>
                       <div className="grid grid-cols-2 gap-y-5 gap-x-4">

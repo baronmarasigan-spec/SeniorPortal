@@ -1,8 +1,9 @@
 
-import { GoogleGenAI } from "@google/genai";
+import {GoogleGenAI} from "@google/genai";
 import { Application, Complaint } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Always use a named parameter for the API key and obtain it exclusively from the environment.
+const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 
 export const generateExecutiveSummary = async (applications: Application[], complaints: Complaint[]) => {
   if (!process.env.API_KEY) return "API Key missing. Cannot generate AI summary.";
@@ -15,6 +16,7 @@ export const generateExecutiveSummary = async (applications: Application[], comp
   `;
 
   try {
+    // Generate content using recommended property access for the generated text.
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `You are an AI assistant for a Senior Citizen Management System administrator. 
@@ -24,6 +26,7 @@ export const generateExecutiveSummary = async (applications: Application[], comp
       ${dataContext}
       `,
     });
+    // Access response.text as a property, not a function.
     return response.text || "Summary analysis completed.";
   } catch (error) {
     console.error("Gemini Error:", error);
@@ -35,10 +38,12 @@ export const analyzeComplaint = async (complaintDetails: string) => {
     if (!process.env.API_KEY) return "API Key missing.";
     
     try {
+        // Generate content using recommended property access for the generated text.
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `Summarize this senior citizen complaint in 5 words or less for a quick status dashboard tag: "${complaintDetails}"`,
         });
+        // Access response.text as a property, not a function.
         return response.text || "Complaint analyzed.";
     } catch (error) {
         console.error("Gemini Error", error);

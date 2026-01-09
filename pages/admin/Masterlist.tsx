@@ -224,7 +224,6 @@ export const Masterlist: React.FC = () => {
                 <th className="p-6">Senior ID</th>
                 <th className="p-6">ID Status</th>
                 <th className="p-6">Benefits</th>
-                <th className="p-6">PhilHealth</th>
                 <th className="p-6 text-right">Actions</th>
               </tr>
             </thead>
@@ -248,9 +247,6 @@ export const Masterlist: React.FC = () => {
                   <td className="p-6">
                       <StatusBadge status={getStatus(citizen.id, 'BENEFITS')} />
                   </td>
-                  <td className="p-6">
-                      <StatusBadge status={getStatus(citizen.id, ApplicationType.PHILHEALTH)} />
-                  </td>
                   <td className="p-6 text-right">
                     <button 
                       onClick={() => setSelectedUser(citizen)}
@@ -263,7 +259,7 @@ export const Masterlist: React.FC = () => {
               ))}
               {citizens.length === 0 && (
                 <tr>
-                   <td colSpan={6} className="p-20 text-center text-slate-400 font-black uppercase tracking-[0.2em] text-xs">No matching entries found in database.</td>
+                   <td colSpan={5} className="p-20 text-center text-slate-400 font-black uppercase tracking-[0.2em] text-xs">No matching entries found in database.</td>
                 </tr>
               )}
             </tbody>

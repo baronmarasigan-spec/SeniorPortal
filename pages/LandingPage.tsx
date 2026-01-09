@@ -18,7 +18,8 @@ import {
   FileText,
   AlertCircle,
   Globe,
-  Clock
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 
 const Logo = () => (
@@ -87,38 +88,42 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     
-    const success = login(username, password);
-    
-    if (success) {
-        if (username.includes('admin')) {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/citizen/dashboard');
-        }
-    } else {
-        setError('Invalid username or password.');
+    try {
+      const success = await login(username, password);
+      
+      if (success) {
+          if (username.toLowerCase().includes('admin')) {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/citizen/dashboard');
+          }
+      } else {
+          setError('Invalid username or password.');
+      }
+    } catch (err) {
+      setError('Connection failed. Please check your internet.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fade-in" 
         onClick={onClose}
       />
       
-      {/* Modal */}
       <div className="bg-white w-full max-w-[450px] rounded-[2.5rem] shadow-2xl overflow-hidden relative z-20 animate-scale-up ring-4 ring-white/30">
-        
-        {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
            <div 
              className="absolute inset-0 bg-contain bg-center bg-no-repeat opacity-20 mix-blend-multiply"
@@ -129,7 +134,6 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
            <div className="absolute inset-0 bg-white/90"></div>
         </div>
 
-        {/* Close Button */}
         <button 
           onClick={onClose}
           className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 z-30 p-2 hover:bg-slate-100 rounded-full transition-colors"
@@ -153,7 +157,8 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
                    type="text" 
                    value={username}
                    onChange={(e) => setUsername(e.target.value)}
-                   className="w-full border-b border-slate-300 px-1 py-2 focus:outline-none focus:border-[#dc2626] transition-colors bg-transparent placeholder:text-slate-400 placeholder:font-light text-slate-800"
+                   disabled={loading}
+                   className="w-full border-b border-slate-300 px-1 py-2 focus:outline-none focus:border-[#dc2626] transition-colors bg-transparent placeholder:text-slate-400 placeholder:font-light text-slate-800 disabled:opacity-50"
                    placeholder={defaultAdmin ? "enter admin username" : "enter your username"}
                  />
               </div>
@@ -164,7 +169,8 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
                    type="password" 
                    value={password}
                    onChange={(e) => setPassword(e.target.value)}
-                   className="w-full border-b border-slate-300 px-1 py-2 focus:outline-none focus:border-[#dc2626] transition-colors bg-transparent placeholder:text-slate-400 placeholder:font-light text-slate-800"
+                   disabled={loading}
+                   className="w-full border-b border-slate-300 px-1 py-2 focus:outline-none focus:border-[#dc2626] transition-colors bg-transparent placeholder:text-slate-400 placeholder:font-light text-slate-800 disabled:opacity-50"
                    placeholder="enter your password"
                  />
               </div>
@@ -177,9 +183,11 @@ const LoginModal = ({ isOpen, onClose, defaultAdmin = false }: { isOpen: boolean
 
               <button 
                 type="submit"
-                className="w-full bg-[#1e3a8a] text-white rounded-full py-3.5 font-bold text-lg hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/30 transform hover:translate-y-[-2px] active:translate-y-0"
+                disabled={loading}
+                className="w-full bg-[#1e3a8a] text-white rounded-full py-3.5 font-bold text-lg hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/30 transform hover:translate-y-[-2px] active:translate-y-0 flex items-center justify-center gap-2 disabled:opacity-70 disabled:translate-y-0"
               >
-                Log in
+                {loading && <RefreshCw size={20} className="animate-spin" />}
+                {loading ? 'Logging in...' : 'Log in'}
               </button>
 
               <div className="text-center text-sm text-slate-500 mt-6 font-light">
@@ -264,11 +272,11 @@ export const LandingPage: React.FC = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-between items-center h-full">
-            <div className="flex gap-4 items-center text-sm font-medium text-slate-800 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/50 animate-fade-in-down" style={{ animationDelay: '200ms' }}>
-              <button onClick={() => scrollToSection('home')} className="hover:text-primary-600 transition-colors">Home</button>
-              <button onClick={() => navigate('/register')} className="hover:text-primary-600 transition-colors">Register</button>
-              <button onClick={() => scrollToSection('benefits')} className="hover:text-primary-600 transition-colors">Services</button>
-              <button onClick={() => scrollToSection('contact')} className="hover:text-primary-600 transition-colors cursor-pointer">Contact Us</button>
+            <div className="flex gap-6 items-center text-sm font-bold text-slate-800 bg-white/80 backdrop-blur-md px-8 py-3 rounded-full shadow-lg border border-white/50 animate-fade-in-down" style={{ animationDelay: '200ms' }}>
+              <button onClick={() => scrollToSection('home')} className="hover:text-primary-600 transition-colors uppercase tracking-widest">Home</button>
+              <button onClick={() => navigate('/register')} className="hover:text-primary-600 transition-colors uppercase tracking-widest">Register</button>
+              <button onClick={() => scrollToSection('benefits')} className="hover:text-primary-600 transition-colors uppercase tracking-widest">Services</button>
+              <button onClick={() => scrollToSection('contact')} className="hover:text-primary-600 transition-colors uppercase tracking-widest">Contact Us</button>
             </div>
 
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-2">
@@ -277,7 +285,7 @@ export const LandingPage: React.FC = () => {
 
             <button 
               onClick={() => setShowLogin(true)}
-              className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full text-primary-600 font-bold hover:bg-white hover:text-primary-700 hover:shadow-lg transition-all border border-white/50 animate-fade-in-down" style={{ animationDelay: '300ms' }}
+              className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full text-primary-600 font-black uppercase tracking-tighter hover:bg-white hover:text-primary-700 hover:shadow-lg transition-all border border-white/50 animate-fade-in-down shadow-md" style={{ animationDelay: '300ms' }}
             >
               Login <ArrowRight size={18} />
             </button>
@@ -333,7 +341,7 @@ export const LandingPage: React.FC = () => {
           </div>
           
           <div className="flex-1 space-y-8">
-            <h2 className="text-4xl font-bold text-primary-500 animate-slide-in-right">Senior Citizen Services</h2>
+            <h2 className="text-4xl font-bold text-primary-500 animate-slide-in-right uppercase tracking-tighter">Senior Citizen Services</h2>
             <p className="text-slate-600 leading-relaxed animate-slide-in-right" style={{ animationDelay: '100ms' }}>
               Our system ensures that senior citizens can access welfare services quickly, safely, 
               and transparently. From registration to ID issuance and cash grants, seniors can 
@@ -349,10 +357,10 @@ export const LandingPage: React.FC = () => {
 
             <button 
               onClick={() => navigate('/register')}
-              className="bg-secondary-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg shadow-secondary-500/30 hover:bg-secondary-700 transition-all hover:scale-105 animate-scale-up"
+              className="bg-secondary-600 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest shadow-lg shadow-secondary-500/30 hover:bg-secondary-700 transition-all hover:scale-105 animate-scale-up"
               style={{ animationDelay: '600ms' }}
             >
-              Apply for Senior
+              Apply for Senior ID
             </button>
           </div>
         </div>
@@ -362,7 +370,7 @@ export const LandingPage: React.FC = () => {
       <section id="contact" className="py-20 px-4 bg-white relative overflow-hidden scroll-mt-24">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
              <div className="text-center mb-16">
-                 <h2 className="text-4xl font-bold text-primary-500 mb-4">Contact Us</h2>
+                 <h2 className="text-4xl font-bold text-primary-500 mb-4 uppercase tracking-tighter">Contact Us</h2>
                  <p className="text-slate-500 max-w-2xl mx-auto">We are here to assist you. Reach out to our dedicated Senior Citizen Affairs team for inquiries, support, or feedback.</p>
              </div>
 

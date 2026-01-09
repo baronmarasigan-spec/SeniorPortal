@@ -1,3 +1,4 @@
+
 import { Application, ApplicationStatus, ApplicationType, Complaint, RegistryRecord, Role, User } from '../types';
 
 export const INITIAL_USERS: User[] = [
@@ -164,12 +165,28 @@ export const INITIAL_APPLICATIONS: Application[] = [
   // --- Dummy Data for Registration Testing ---
   {
     id: 'app_reg_test_1',
-    userId: 'temp_user_1', 
+    userId: 'walkin_998877', 
     userName: 'Rolando "Lolo" Pascual',
     type: ApplicationType.REGISTRATION,
     date: '2023-10-28',
     status: ApplicationStatus.PENDING,
-    description: 'Manual Registration.\n\n[TEST CREDENTIALS]\nUsername: lolo_pascual\nPassword: senior123',
+    description: `Walk-in Registration Details:
+First Name: Rolando
+Last Name: Pascual
+Birth Date: 1952-11-12
+Birth Place: San Juan City
+Gender: Male
+Civil Status: Married
+Address: 12 B. Riverside St., San Juan
+Email: rolando.pascual@test.ph
+Phone: 0915 222 3344
+Living: Owned
+Pensioner: Yes
+Pension Source: SSS
+Pension Amount: 4500
+Has Illness: Yes
+Illness Details: Hypertension
+Verified via Registry: LCR`,
     documents: ['BirthCertificate_PSA.pdf', 'BarangayClearance.jpg']
   },
   {
@@ -179,8 +196,24 @@ export const INITIAL_APPLICATIONS: Application[] = [
     type: ApplicationType.REGISTRATION,
     date: '2023-10-29',
     status: ApplicationStatus.PENDING,
-    description: 'Online Registration.\n\n[TEST CREDENTIALS]\nUsername: tita_terry\nPassword: 123456',
-    documents: ['ValidID.png']
+    description: `Online Registration Details:
+First Name: Teresita
+Last Name: Reyes
+Birth Date: 1958-05-15
+Birth Place: Manila
+Gender: Female
+Civil Status: Widowed
+Address: Unit 304, Green Park Condo, San Juan
+Email: tita_terry@email.com
+Phone: 0917 888 9900
+Living: Rent
+Pensioner: No
+Pension Source: None
+Pension Amount: 0
+Has Illness: No
+Illness Details: None
+Verified via Registry: MANUAL`,
+    documents: ['ValidID.png', 'Selfie_Verification.jpg']
   },
   // --- Dummy Data for ID Issuance Testing (Admin Portal) ---
   {
@@ -236,7 +269,7 @@ export const INITIAL_APPLICATIONS: Application[] = [
     type: ApplicationType.REGISTRATION,
     date: '2023-10-26',
     status: ApplicationStatus.APPROVED,
-    description: 'New senior citizen registration.',
+    description: 'New senior citizen registration.\nBirth Date: 1949-11-22',
     documents: ['BirthCert.pdf', 'ValidID_Passport.jpg']
   },
   {
@@ -325,6 +358,48 @@ export const INITIAL_REGISTRY_RECORDS: RegistryRecord[] = [
     isRegistered: true 
   },
   { 
+    id: 'PWD-2024-101', 
+    type: 'PWD', 
+    firstName: 'Fernando', 
+    middleName: 'Alonzo',
+    lastName: 'Poe', 
+    suffix: 'III',
+    citizenship: 'Filipino',
+    birthDate: '1975-11-12', 
+    birthPlace: 'San Juan City',
+    sex: 'Male',
+    civilStatus: 'Married',
+    province: 'Metro Manila',
+    city: 'San Juan',
+    district: 'District 1',
+    barangay: 'Onse',
+    street: 'A. Luna St',
+    houseNo: '88',
+    address: '88 A. Luna St, San Juan',
+    isRegistered: false 
+  },
+  { 
+    id: 'PWD-2024-505', 
+    type: 'PWD', 
+    firstName: 'Gloria', 
+    middleName: 'Macapagal',
+    lastName: 'Arroyo', 
+    suffix: '',
+    citizenship: 'Filipino',
+    birthDate: '1947-04-05', 
+    birthPlace: 'Lubao, Pampanga',
+    sex: 'Female',
+    civilStatus: 'Married',
+    province: 'Metro Manila',
+    city: 'San Juan',
+    district: 'District 2',
+    barangay: 'Greenhills',
+    street: 'Connecticut St',
+    houseNo: '12',
+    address: '12 Connecticut St, San Juan',
+    isRegistered: false 
+  },
+  { 
     id: 'LCR-1950-555', 
     type: 'LCR', 
     firstName: 'Emilio', 
@@ -365,5 +440,89 @@ export const INITIAL_REGISTRY_RECORDS: RegistryRecord[] = [
     houseNo: '44',
     address: 'Calamba St, Brgy Onse',
     isRegistered: false 
+  },
+  { 
+    id: 'PWD-2025-001', 
+    type: 'PWD', 
+    firstName: 'Ramon', 
+    middleName: 'Gomez',
+    lastName: 'Bautista', 
+    suffix: '',
+    citizenship: 'Filipino',
+    birthDate: '1958-02-14', 
+    birthPlace: 'Pasig City',
+    sex: 'Male',
+    civilStatus: 'Married',
+    province: 'Metro Manila',
+    city: 'San Juan',
+    district: 'District 2',
+    barangay: 'West Crame',
+    street: 'Bautista St',
+    houseNo: '45',
+    address: '45 West Crame, San Juan',
+    isRegistered: false 
+  },
+  { 
+    id: 'PWD-2025-002', 
+    type: 'PWD', 
+    firstName: 'Nicanor', 
+    middleName: 'Abelardo',
+    lastName: 'San Miguel', 
+    suffix: 'Sr.',
+    citizenship: 'Filipino',
+    birthDate: '1962-12-25', 
+    birthPlace: 'Bulacan',
+    sex: 'Male',
+    civilStatus: 'Widowed',
+    province: 'Metro Manila',
+    city: 'San Juan',
+    district: 'District 1',
+    barangay: 'Tibagan',
+    street: 'San Miguel St',
+    houseNo: '12',
+    address: '12 Brgy Tibagan, San Juan',
+    isRegistered: false 
+  },
+  { 
+    id: 'PWD-2025-003', 
+    type: 'PWD', 
+    firstName: 'Liza', 
+    middleName: 'Soberano',
+    lastName: 'Mendoza', 
+    suffix: '',
+    citizenship: 'Filipino',
+    birthDate: '1995-01-04', 
+    birthPlace: 'California, USA',
+    sex: 'Female',
+    civilStatus: 'Single',
+    province: 'Metro Manila',
+    city: 'San Juan',
+    district: 'District 2',
+    barangay: 'Greenhills',
+    street: 'Eisenhower St',
+    houseNo: '302',
+    address: 'Unit 302 Eisenhower Condominium',
+    isRegistered: false 
+  },
+  { 
+    id: 'PWD-2025-004', 
+    type: 'PWD', 
+    firstName: 'Paciano', 
+    middleName: 'Mercado',
+    lastName: 'Rizal', 
+    suffix: '',
+    citizenship: 'Filipino',
+    birthDate: '1945-03-07', 
+    birthPlace: 'Calamba, Laguna',
+    sex: 'Male',
+    civilStatus: 'Single',
+    province: 'Metro Manila',
+    city: 'San Juan',
+    district: 'District 1',
+    barangay: 'Onse',
+    street: 'Calamba St',
+    houseNo: '11',
+    address: '11 Brgy Onse, San Juan',
+    isRegistered: true 
   },
 ];

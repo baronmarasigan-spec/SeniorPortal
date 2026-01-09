@@ -1,8 +1,8 @@
 
-
 export enum Role {
   CITIZEN = 'CITIZEN',
   ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN',
   LCR_PWD_ADMIN = 'LCR_PWD_ADMIN',
 }
 

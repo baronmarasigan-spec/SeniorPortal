@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -25,6 +26,9 @@ import { CitizenID } from './pages/citizen/CitizenID';
 import { CitizenBenefits } from './pages/citizen/CitizenBenefits';
 import { CitizenProfile } from './pages/citizen/CitizenProfile';
 
+// Helper to identify administrative users
+const isAdminRole = (role?: Role) => role === Role.ADMIN || role === Role.SUPER_ADMIN;
+
 // Protected Route Wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole?: Role }> = ({ children, allowedRole }) => {
   const { currentUser } = useApp();
@@ -33,8 +37,14 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole?: Role }
     return <Navigate to="/" replace />;
   }
 
+  // If a specific role is required (like ADMIN), check if current user has it or is a SUPER_ADMIN
   if (allowedRole && currentUser.role !== allowedRole) {
-    if (currentUser.role === Role.ADMIN) return <Navigate to="/admin/dashboard" replace />;
+    // If we're checking for ADMIN but user is SUPER_ADMIN, allow it
+    if (allowedRole === Role.ADMIN && currentUser.role === Role.SUPER_ADMIN) {
+      return <Layout>{children}</Layout>;
+    }
+    
+    if (isAdminRole(currentUser.role)) return <Navigate to="/admin/dashboard" replace />;
     return <Navigate to="/citizen/dashboard" replace />;
   }
 
@@ -45,7 +55,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole?: Role }
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useApp();
   if (currentUser) {
-    if (currentUser.role === Role.ADMIN) return <Navigate to="/admin/dashboard" replace />;
+    if (isAdminRole(currentUser.role)) return <Navigate to="/admin/dashboard" replace />;
     return <Navigate to="/citizen/dashboard" replace />;
   }
   return <>{children}</>;

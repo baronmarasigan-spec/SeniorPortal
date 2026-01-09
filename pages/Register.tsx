@@ -6,9 +6,10 @@ import {
   ArrowLeft, CheckCircle2, ShieldCheck, 
   ArrowRight, Upload, FileCheck, X, User, 
   MapPin, Phone, Calendar, Heart, Banknote, ShieldAlert,
-  FileText
+  FileText, Lock, RefreshCw, AlertCircle, Mail, Info
 } from 'lucide-react';
 import { ApplicationType } from '../types';
+import { notifyRegistrationSuccess, sendOTP } from '../services/notification';
 
 const SLIDES = [
   "https://picsum.photos/seed/seniors_ph1/800/600",
@@ -29,6 +30,7 @@ export const Register: React.FC = () => {
     middleName: '',
     lastName: '',
     suffix: '',
+    email: '',
     birthDate: '',
     birthPlace: '',
     sex: '',
@@ -40,13 +42,19 @@ export const Register: React.FC = () => {
     pensionSource: '',
     pensionAmount: '',
     hasIllness: false,
-    illnessDetails: '',
-    username: '',
-    password: '',
-    confirmPassword: ''
+    illnessDetails: ''
   });
 
   const [files, setFiles] = useState<string[]>([]);
+
+  // OTP State
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [inputOtp, setInputOtp] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [timer, setTimer] = useState(0);
 
   // Slideshow timer
   useEffect(() => {
@@ -56,10 +64,29 @@ export const Register: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // OTP Countdown effect
+  useEffect(() => {
+    let interval: number;
+    if (timer > 0) {
+      interval = window.setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
     setFormData(prev => ({ ...prev, [name]: val }));
+    
+    // Reset OTP status if number changes
+    if (name === 'contactNumber') {
+      setOtpSent(false);
+      setOtpVerified(false);
+      setInputOtp('');
+      setTimer(0);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,30 +100,75 @@ export const Register: React.FC = () => {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  const handleSendOTP = async () => {
+    if (!formData.contactNumber || formData.contactNumber.length < 10) {
+      setOtpError('Please enter a valid contact number.');
+      return;
+    }
+
+    setOtpLoading(true);
+    setOtpError('');
+    const code = await sendOTP(formData.contactNumber);
+    if (code) {
+      setGeneratedOtp(code);
+      setOtpSent(true);
+      setTimer(30); // Start 30s countdown
+      console.log(`[DEMO] Verification Code sent to ${formData.contactNumber}: ${code}`);
+    } else {
+      setOtpError('Failed to send verification code. Please try again.');
+    }
+    setOtpLoading(false);
+  };
+
+  const handleVerifyOTP = () => {
+    setOtpError('');
+    if (inputOtp === generatedOtp) {
+      setOtpVerified(true);
+    } else {
+      setOtpError('Invalid verification code. Please try again.');
+    }
+  };
+
+  const handleSubmit = async () => {
+    const fullName = `${formData.firstName} ${formData.lastName}`;
+    
+    // 1. Submit application to global state
     addApplication({
       userId: `temp_${Date.now()}`,
-      userName: `${formData.firstName} ${formData.lastName}`,
+      userName: fullName,
       type: ApplicationType.REGISTRATION,
-      description: `Manual Registration Submission.\nLiving: ${formData.livingArrangement}\nPensioner: ${formData.isPensioner ? 'Yes' : 'No'}\nIllness: ${formData.hasIllness ? formData.illnessDetails : 'None'}\n\n[Credentials]\nUsername: ${formData.username}\nPassword: ${formData.password}`,
+      description: `Manual Registration Submission.\nLiving: ${formData.livingArrangement}\nPensioner: ${formData.isPensioner ? 'Yes' : 'No'}\nIllness: ${formData.hasIllness ? formData.illnessDetails : 'None'}\nContact: ${formData.contactNumber}\nEmail: ${formData.email}\nNote: OTP verification bypassed.`,
       documents: files
     });
+
+    // 2. Trigger SMS & Email Notifications
+    await notifyRegistrationSuccess(fullName, formData.contactNumber, formData.email);
     
+    // 3. Redirect with success state
     navigate('/', { state: { openLogin: true } });
   };
 
-  const isStep1Valid = formData.firstName && formData.lastName && formData.birthDate && formData.address && formData.contactNumber;
+  const isStep1Valid = formData.firstName && formData.lastName && formData.birthDate && formData.address && formData.email;
   const isStep2Valid = formData.livingArrangement;
-  const isStep3Valid = files.length > 0 && formData.username && formData.password && formData.password === formData.confirmPassword;
+  // TEMPORARY: Removed otpVerified requirement from validation
+  const isStep3Valid = formData.contactNumber && files.length > 0;
 
   const nextStep = () => {
-    if (currentStep === 1 && !isStep1Valid) return;
-    if (currentStep === 2 && !isStep2Valid) return;
-    if (currentStep < 3) setCurrentStep(c => c + 1);
-    else handleSubmit();
+    if (currentStep === 1) {
+      if (!isStep1Valid) return;
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      if (!isStep2Valid) return;
+      setCurrentStep(3);
+    } else if (currentStep === 3) {
+      if (!isStep3Valid) return;
+      handleSubmit();
+    }
   };
 
-  const prevStep = () => currentStep > 1 && setCurrentStep(c => c - 1);
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(c => c - 1);
+  };
 
   return (
     <div className="flex h-screen w-screen bg-white overflow-hidden font-sans">
@@ -116,9 +188,7 @@ export const Register: React.FC = () => {
           <div className="space-y-4">
             <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-lg">MABUHAY!</h1>
             <p className="text-lg text-white/90 leading-relaxed font-medium drop-shadow-sm">
-              Register now to access your Senior<br />
-              Citizen benefits and services in<br />
-              San Juan City.
+              Register now to access your Senior Citizen benefits and services in San Juan City.
             </p>
           </div>
 
@@ -170,7 +240,7 @@ export const Register: React.FC = () => {
 
         {/* FORM CONTENT */}
         <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full pb-32">
-          {currentStep === 1 && (
+          {currentStep === 1 ? (
             <div className="space-y-8 animate-fade-in-up">
               <div className="space-y-1">
                 <h2 className="text-3xl font-extrabold text-slate-900">Personal Profile</h2>
@@ -195,9 +265,9 @@ export const Register: React.FC = () => {
                   <input type="text" name="birthPlace" value={formData.birthPlace} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium" placeholder="San Juan City" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Sex</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Gender</label>
                   <select name="sex" value={formData.sex} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium">
-                    <option value="">Select Sex</option>
+                    <option value="">Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                   </select>
@@ -216,15 +286,16 @@ export const Register: React.FC = () => {
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Residential Address</label>
                   <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium" placeholder="House No, Street, Barangay, San Juan City" />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Contact Number</label>
-                  <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium" placeholder="09XX XXX XXXX" />
+                <div className="md:col-span-2 space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-slate-800 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium" placeholder="juan.delacruz@email.com" />
+                  </div>
                 </div>
               </div>
             </div>
-          )}
-
-          {currentStep === 2 && (
+          ) : currentStep === 2 ? (
             <div className="space-y-8 animate-fade-in-up">
               <div className="space-y-1">
                 <h2 className="text-3xl font-extrabold text-slate-900">Socio-Economic Info</h2>
@@ -302,16 +373,15 @@ export const Register: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
-
-          {currentStep === 3 && (
+          ) : (
             <div className="space-y-8 animate-fade-in-up">
               <div className="space-y-1">
-                <h2 className="text-3xl font-extrabold text-slate-900">Documents & Account</h2>
-                <p className="text-slate-500 text-sm">Finalize your registration by uploading proof and setting your login.</p>
+                <h2 className="text-3xl font-extrabold text-slate-900">Final Verification</h2>
+                <p className="text-slate-500 text-sm">Upload documents and verify your mobile number to complete registration.</p>
               </div>
 
               <div className="space-y-6">
+                {/* File Upload Section */}
                 <div className="bg-primary-50 p-6 rounded-3xl border border-primary-100">
                   <h3 className="text-sm font-bold text-primary-800 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <FileText size={16}/> Required Documents
@@ -337,29 +407,109 @@ export const Register: React.FC = () => {
                   )}
                 </div>
 
+                {/* Account Security & OTP Verification Section */}
                 <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white space-y-6">
-                  <h3 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
-                    <ShieldCheck size={16} className="text-primary-400" /> Account Setup
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Username</label>
-                      <input type="text" name="username" value={formData.username} onChange={handleChange} className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-primary-500 transition-all font-mono" placeholder="Enter username" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Password</label>
-                        <input type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-primary-500 transition-all font-mono" placeholder="••••••" />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Confirm</label>
-                        <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-primary-500 transition-all font-mono" placeholder="••••••" />
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
+                      <ShieldCheck size={16} className="text-primary-400" /> Account Security
+                    </h3>
+                    <div className="bg-blue-500/10 text-blue-400 text-[10px] px-2 py-1 rounded flex items-center gap-1 font-bold">
+                       <Info size={10} /> OTP VERIFICATION OPTIONAL
                     </div>
                   </div>
-                  {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                    <p className="text-red-400 text-xs font-bold animate-pulse">Passwords do not match!</p>
-                  )}
+                  
+                  <div className="space-y-6">
+                    {/* Mobile Number Input */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Mobile Number for OTP</label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                          <input 
+                            type="tel" 
+                            name="contactNumber" 
+                            value={formData.contactNumber} 
+                            onChange={handleChange} 
+                            disabled={otpVerified || otpLoading}
+                            className="w-full bg-white/10 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white outline-none focus:border-primary-500 transition-all font-mono disabled:opacity-50" 
+                            placeholder="09XX XXX XXXX" 
+                          />
+                        </div>
+                        {!otpVerified && (
+                          <button 
+                            onClick={handleSendOTP}
+                            disabled={otpLoading || !formData.contactNumber || timer > 0}
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-6 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary-600/20 transition-all disabled:opacity-30 flex items-center gap-2 shrink-0 min-w-[120px] justify-center"
+                          >
+                            {otpLoading ? <RefreshCw size={14} className="animate-spin" /> : timer > 0 ? `Retry in ${timer}s` : 'Send OTP'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* OTP Input Field - Appears after sending */}
+                    {otpSent && !otpVerified && (
+                      <div className="space-y-3 animate-fade-in-down">
+                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Enter Verification Code</label>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                            <input 
+                              type="text" 
+                              maxLength={6}
+                              value={inputOtp}
+                              onChange={(e) => setInputOtp(e.target.value.replace(/[^0-9]/g, ''))}
+                              className="w-full bg-white/10 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white outline-none focus:border-primary-500 transition-all font-mono text-xl tracking-[0.2em]" 
+                              placeholder="000000" 
+                            />
+                          </div>
+                          <button 
+                            onClick={handleVerifyOTP}
+                            disabled={inputOtp.length < 6}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-30"
+                          >
+                            Verify
+                          </button>
+                        </div>
+                        {otpError && (
+                          <p className="text-red-400 text-[10px] font-bold flex items-center gap-1">
+                            <AlertCircle size={12} /> {otpError}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-white/40">
+                          Code sent to your mobile. Haven't received it? 
+                          <button 
+                            onClick={handleSendOTP} 
+                            disabled={timer > 0 || otpLoading}
+                            className="text-primary-400 hover:underline ml-1 disabled:opacity-50 disabled:no-underline"
+                          >
+                            {timer > 0 ? `Resend in ${timer}s` : 'Resend Code'}
+                          </button>
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Verified Status */}
+                    {otpVerified && (
+                      <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl flex items-center justify-between animate-fade-in">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center">
+                            <CheckCircle2 size={18} />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-emerald-400">Number Verified</p>
+                            <p className="text-[10px] text-emerald-400/60 font-mono">{formData.contactNumber}</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => { setOtpVerified(false); setOtpSent(false); setTimer(0); }}
+                          className="text-[10px] text-white/40 hover:text-white underline"
+                        >
+                          Change Number
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -375,7 +525,7 @@ export const Register: React.FC = () => {
 
           <div className="hidden sm:flex items-center gap-2">
              <ShieldCheck className="text-slate-300" size={18} />
-             <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">Your data is secured by SC-SSL encryption</span>
+             <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">Verified Registration Secure Tunnel</span>
           </div>
 
           <button 

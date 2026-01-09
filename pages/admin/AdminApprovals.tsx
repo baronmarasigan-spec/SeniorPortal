@@ -2,17 +2,25 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ApplicationStatus } from '../../types';
-import { CheckCircle, XCircle, Clock, Archive } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Archive, Bell } from 'lucide-react';
 
 export const AdminApprovals: React.FC = () => {
   const { applications, updateApplicationStatus } = useApp();
   const [filter, setFilter] = useState<'pending' | 'rejected'>('pending');
+  const [notifyingId, setNotifyingId] = useState<string | null>(null);
   
   const filteredApps = applications.filter(a => 
       filter === 'pending' 
       ? a.status === ApplicationStatus.PENDING 
       : a.status === ApplicationStatus.REJECTED
   );
+
+  const handleAction = (id: string, status: ApplicationStatus, reason?: string) => {
+      setNotifyingId(id);
+      updateApplicationStatus(id, status, reason);
+      // Simulate visual feedback for notification sending
+      setTimeout(() => setNotifyingId(null), 2000);
+  };
 
   return (
     <div className="space-y-6">
@@ -57,11 +65,11 @@ export const AdminApprovals: React.FC = () => {
         <div className="grid gap-4">
           {filteredApps.map((app) => (
             <div key={app.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 flex-1">
                 <div className={`p-3 rounded-xl ${filter === 'pending' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-500'}`}>
                   {filter === 'pending' ? <Clock size={24} /> : <XCircle size={24} />}
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-bold text-slate-800 text-lg">{app.type}</h3>
                   <p className="text-slate-600">{app.userName}</p>
                   <p className="text-sm text-slate-400 mt-1">{app.description}</p>
@@ -86,21 +94,28 @@ export const AdminApprovals: React.FC = () => {
               </div>
               
               {filter === 'pending' && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => updateApplicationStatus(app.id, ApplicationStatus.REJECTED, "Document mismatch or incomplete requirements.")}
-                      className="flex-1 md:flex-none px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors font-medium text-sm flex items-center justify-center gap-2"
-                    >
-                      <XCircle size={16} />
-                      Reject
-                    </button>
-                    <button
-                      onClick={() => updateApplicationStatus(app.id, ApplicationStatus.APPROVED)}
-                      className="flex-1 md:flex-none px-6 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all font-medium text-sm flex items-center justify-center gap-2"
-                    >
-                      <CheckCircle size={16} />
-                      Approve
-                    </button>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-3">
+                        <button
+                        onClick={() => handleAction(app.id, ApplicationStatus.REJECTED, "Document mismatch or incomplete requirements.")}
+                        className="flex-1 md:flex-none px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                        >
+                        <XCircle size={16} />
+                        Reject
+                        </button>
+                        <button
+                        onClick={() => handleAction(app.id, ApplicationStatus.APPROVED)}
+                        className="flex-1 md:flex-none px-6 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all font-medium text-sm flex items-center justify-center gap-2"
+                        >
+                        <CheckCircle size={16} />
+                        Approve
+                        </button>
+                    </div>
+                    {notifyingId === app.id && (
+                        <div className="text-[10px] font-bold text-blue-500 flex items-center justify-center gap-1 animate-pulse">
+                            <Bell size={10} /> Sending SMS/Email Notification...
+                        </div>
+                    )}
                   </div>
               )}
             </div>
